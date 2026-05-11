@@ -14,6 +14,7 @@ Tutte le modifiche sostanziali al progetto vanno registrate qui.
 - Star Atlas Core Bridge WordPress plugin skeleton.
 - Root `API.md` and `SECURITY.md` documentation.
 - Agent Browser tooling for fast online and visual smoke tests.
+- Root `agent-browser.md` command reference linked from `AGENTS.md`.
 
 ### Changed
 - Root `README.md` now documents the bootstrap layout and runtime targets.
