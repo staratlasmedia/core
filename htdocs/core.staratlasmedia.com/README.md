@@ -41,3 +41,25 @@ Install one cron entry for the Laravel scheduler:
 ```cron
 * * * * * cd /home/staratlasmedia-core/htdocs/core.staratlasmedia.com && /usr/bin/php8.4 artisan schedule:run >> /dev/null 2>&1
 ```
+
+## Debug Logging
+
+Core keeps debug logging enabled while the application is under construction.
+
+```text
+APP_ENV=local
+APP_DEBUG=true
+LOG_CHANNEL=stack
+LOG_STACK=single,daily,errorlog
+LOG_DEPRECATIONS_CHANNEL=deprecations
+LOG_DEPRECATIONS_TRACE=true
+LOG_LEVEL=debug
+```
+
+Runtime log locations:
+
+```text
+storage/logs/
+/home/staratlasmedia-core/logs/php/error.log
+/home/staratlasmedia-core/logs/nginx/error.log
+```

@@ -32,6 +32,13 @@
 - Mantenere l'uso minimale: status, title e primo `h1`; passare a screenshot o diagnosi estesa solo se il controllo rapido fallisce o non basta per lo scopo.
 - Per verifiche visuali piu' ricche usare direttamente `npx agent-browser screenshot`, `npx agent-browser snapshot` o `npx agent-browser batch`.
 
+## Debug e log applicativi
+- Finche' Core non e' completato, mantenere `APP_DEBUG=true` e `APP_ENV=local` nell'ambiente locale del sito.
+- Mantenere attivo lo stack log applicativo con `LOG_CHANNEL=stack`, `LOG_STACK=single,daily,errorlog`, `LOG_DEPRECATIONS_CHANNEL=deprecations`, `LOG_DEPRECATIONS_TRACE=true`, `LOG_LEVEL=debug`.
+- Per errori 500, problemi vhost, PHP-FPM, document root o permessi runtime, consultare prima [`docs/infrastructure.md`](docs/infrastructure.md).
+- Prima di diagnosticare errori Laravel, verificare che `storage/` e `bootstrap/cache` siano scrivibili da `staratlasmedia-core`.
+- Log utili: `htdocs/core.staratlasmedia.com/storage/logs/`, `/home/staratlasmedia-core/logs/php/error.log`, `/home/staratlasmedia-core/logs/nginx/error.log`.
+
 ## Purpose
 
 This repository contains **Core**, the centralized headless backend for Star Atlas Media.

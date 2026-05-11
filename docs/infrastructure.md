@@ -53,3 +53,17 @@
 - Prima di cambiare il vhost, verificare sempre il file in `/etc/nginx/sites-enabled/`.
 - Per backup e restore database, preferire i comandi `clpctl` quando disponibili.
 - Evitare di modificare file di sistema senza un motivo chiaro e una verifica del risultato.
+
+## Troubleshooting Laravel / Vhost
+- Per errori HTTP 500 su Core, verificare prima questo file per document root, log, upstream PHP-FPM e regole CloudPanel.
+- Controllare rapidamente il sito con:
+  - `cd /home/staratlasmedia-core/htdocs/core.staratlasmedia.com`
+  - `npm run browser:check -- https://core.staratlasmedia.com/core-admin/login`
+- Log da leggere in ordine:
+  - `/home/staratlasmedia-core/htdocs/core.staratlasmedia.com/storage/logs/`
+  - `/home/staratlasmedia-core/logs/php/error.log`
+  - `/home/staratlasmedia-core/logs/nginx/error.log`
+- Verificare permessi runtime Laravel:
+  - `storage/` e `bootstrap/cache` devono essere scrivibili da `staratlasmedia-core`.
+  - Se sono stati creati file da `root`, riallineare con `chown -R staratlasmedia-core:staratlasmedia-core storage bootstrap/cache` dalla root Laravel.
+- Non modificare direttamente i vhost CloudPanel se il problema e' risolvibile nell'app Laravel o nei permessi runtime.

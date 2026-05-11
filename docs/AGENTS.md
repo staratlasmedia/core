@@ -58,6 +58,14 @@ Preferred order:
 - Keep it minimal by default: status, title, and first `h1`; use screenshots or deeper browser diagnostics only when the quick check fails or cannot prove the requested change.
 - For richer visual checks, use `npx agent-browser screenshot`, `npx agent-browser snapshot`, or `npx agent-browser batch` directly.
 
+## Application Debugging And Logs
+
+- While Core is still under construction, keep `APP_DEBUG=true` and `APP_ENV=local` in the site environment.
+- Keep the application log stack active with `LOG_CHANNEL=stack`, `LOG_STACK=single,daily,errorlog`, `LOG_DEPRECATIONS_CHANNEL=deprecations`, `LOG_DEPRECATIONS_TRACE=true`, and `LOG_LEVEL=debug`.
+- For HTTP 500, vhost, PHP-FPM, document root, or runtime permission issues, consult `docs/infrastructure.md` first.
+- Before diagnosing Laravel errors, verify that `storage/` and `bootstrap/cache` are writable by `staratlasmedia-core`.
+- Useful logs: `htdocs/core.staratlasmedia.com/storage/logs/`, `/home/staratlasmedia-core/logs/php/error.log`, `/home/staratlasmedia-core/logs/nginx/error.log`.
+
 ## Non-Negotiable Security Rules
 
 - Never hardcode secrets.

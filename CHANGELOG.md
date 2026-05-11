@@ -19,9 +19,12 @@ Tutte le modifiche sostanziali al progetto vanno registrate qui.
 ### Changed
 - Root `README.md` now documents the bootstrap layout and runtime targets.
 - Agent instructions now prefer quick `agent-browser` checks for site availability and simple visual verification.
+- Development logging now keeps debug enabled and writes to single, daily, PHP error log, and deprecation logs while Core is under construction.
+- Infrastructure troubleshooting now documents the vhost/PHP-FPM checks for Laravel 500 errors.
 
 ### Fixed
 - Local runtime `.env` permissions now allow PHP-FPM to read the application key.
+- Laravel storage and cache permissions now allow PHP-FPM to write logs and compiled views.
 
 ### Security
 - `.env.example` uses placeholders only; local `.env` is ignored by Git.
