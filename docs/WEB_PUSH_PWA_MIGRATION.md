@@ -263,12 +263,13 @@ Old application files:
 
 Recommended import process:
 
-1. Create temporary DB `legacy_pushservice`.
-2. Import `pushservice.sql` into `legacy_pushservice`.
+1. Use the already-loaded legacy DB through Laravel connection `legacy_push`.
+2. Configure the legacy DB through `LEGACY_PUSH_DB_*` env values; do not hardcode credentials.
 3. Do not mix legacy tables into the new Core DB.
-4. Build an Artisan command:
-   - `php artisan core:import-legacy-push --dry-run`
-   - `php artisan core:import-legacy-push --appids=1,11,12,10,...`
+4. Use the Phase 3 Artisan commands:
+   - `php artisan core:legacy-push:inspect --appids=1,11,12,10`
+   - `php artisan core:legacy-push:import --dry-run --appids=1,11,12,10`
+   - `php artisan core:legacy-push:import --appids=1,11,12,10`
 5. Parse `devices.token` as JSON-first.
 6. Extract endpoint, `p256dh`, `auth`.
 7. Create `vapid_key_sets` using the effective per-app VAPID rule.
@@ -342,6 +343,8 @@ Do not use global VAPID keys unless `shared == 1`.
 
 Never print or commit VAPID private keys.
 
+Dry-run and inspect output must show only counts, VAPID source labels, safe key fingerprints, and `endpoint_hash` samples. It must never print raw endpoints, `auth`, `p256dh`, or VAPID private key values.
+
 ## ClubAlfa Mapping
 
 Unify Italian ClubAlfa root and Automobili:
@@ -362,10 +365,12 @@ appid 12 → clubalfa_en, section en
 ```text
 site_code: clubalfa_it
 origin: https://www.clubalfa.it
+path_prefix: /
 language: it
 section: main
 merge_group: clubalfa_it
 legacy service worker: /smart_sw.js
+legacy service worker scope: /
 legacy source: legacy_import
 ```
 
@@ -374,10 +379,12 @@ legacy source: legacy_import
 ```text
 site_code: clubalfa_it
 origin: https://www.clubalfa.it
+path_prefix: /automobili/
 language: it
 section: automobili
 merge_group: clubalfa_it
 legacy service worker: /automobili/smart_sw.js
+legacy service worker scope: /automobili/
 legacy source: legacy_import
 ```
 
@@ -386,10 +393,12 @@ legacy source: legacy_import
 ```text
 site_code: clubalfa_en
 origin: https://www.clubalfa.it
+path_prefix: /en/
 language: en
 section: en
 merge_group: clubalfa_en
 legacy service worker: /en/smart_sw.js
+legacy service worker scope: /en/
 legacy source: legacy_import
 ```
 

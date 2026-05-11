@@ -84,6 +84,26 @@ return [
             ]) : [],
         ],
 
+        'legacy_push' => [
+            'driver' => env('LEGACY_PUSH_DB_CONNECTION', 'mariadb'),
+            'url' => env('LEGACY_PUSH_DB_URL'),
+            'host' => env('LEGACY_PUSH_DB_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('LEGACY_PUSH_DB_PORT', env('DB_PORT', '3306')),
+            'database' => env('LEGACY_PUSH_DB_DATABASE', 'push-old'),
+            'username' => env('LEGACY_PUSH_DB_USERNAME', ''),
+            'password' => env('LEGACY_PUSH_DB_PASSWORD', ''),
+            'unix_socket' => env('LEGACY_PUSH_DB_SOCKET', env('DB_SOCKET', '')),
+            'charset' => env('LEGACY_PUSH_DB_CHARSET', 'utf8mb4'),
+            'collation' => env('LEGACY_PUSH_DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('LEGACY_PUSH_MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),

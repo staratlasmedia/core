@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -69,5 +70,12 @@ class PushSubscription extends CoreModel
     public function topics(): BelongsToMany
     {
         return $this->belongsToMany(PushTopic::class, 'push_subscription_topics')->withTimestamps();
+    }
+
+    public function scopeModernDispatchEligible(Builder $query): Builder
+    {
+        return $query
+            ->whereIn('source', ['core_sdk', 'core_reconfirmed'])
+            ->whereIn('status', ['active', 'core_reconfirmed']);
     }
 }

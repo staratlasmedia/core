@@ -20,9 +20,14 @@
 - Per librerie, framework e API aggiornate usare prima Context7 via MCP, gia' disponibile nell'estensione.
 - Usare il web solo se Context7 non basta o se serve una fonte ufficiale specifica.
 - Usare `brv` per recuperare o curare pattern, decisioni e regole locali quando serve memoria di progetto.
+- Per `brv curate`, usare di default `--timeout 700`, soprattutto quando si allegano file con `-f`.
+- Per `brv curate` con piu' di 2 file allegati, preferire `--detach` se il risultato non serve nello stesso turno; in un turno successivo verificare il completamento con `brv curate view <logId> --format json` prima di fidarsi della memoria.
+- Se il risultato della curation serve subito, non usare `--detach`: usare `--timeout 700` e, se resta lento, dividere gli allegati in batch piu' piccoli.
 - Documentare ogni cambiamento sostanziale nel `CHANGELOG.md` in root prima di chiudere il lavoro.
 - Il `CHANGELOG.md` in root e il registro ufficiale delle modifiche importanti del progetto.
-- Usare nel `CHANGELOG.md` le sezioni `Added`, `Changed`, `Fixed` e `Security` per ogni release o blocco `Unreleased`.
+- Usare nel `CHANGELOG.md` le sezioni `Added`, `Changed`, `Fixed` e `Security` per ogni blocco `Unreleased` o release datata.
+- Tenere `Unreleased` in cima come area di lavoro corrente e usare blocchi `## YYYY-MM-DD` per i rilasci o i checkpoint completati.
+- Scrivere il changelog nello stesso giorno e, quando possibile, nello stesso turno in cui avviene il cambiamento sostanziale.
 
 ## Verifiche browser rapide
 - Usare `agent-browser` di `vercel-labs/agent-browser`, installato localmente nel progetto Laravel, per verifiche browser headless.
