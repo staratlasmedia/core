@@ -31,4 +31,13 @@ DB_PASSWORD=change-me
 php artisan route:list
 php artisan test
 composer test
+npm run browser:check -- https://core.staratlasmedia.com
+```
+
+## Scheduler Cron
+
+Install one cron entry for the Laravel scheduler:
+
+```cron
+* * * * * cd /home/staratlasmedia-core/htdocs/core.staratlasmedia.com && /usr/bin/php8.4 artisan schedule:run >> /dev/null 2>&1
 ```

@@ -13,11 +13,11 @@ Tutte le modifiche sostanziali al progetto vanno registrate qui.
 - TypeScript/Lit Core SDK skeleton.
 - Star Atlas Core Bridge WordPress plugin skeleton.
 - Root `API.md` and `SECURITY.md` documentation.
-- Playwright browser check tooling for fast online and visual smoke tests.
+- Agent Browser tooling for fast online and visual smoke tests.
 
 ### Changed
 - Root `README.md` now documents the bootstrap layout and runtime targets.
-- Agent instructions now prefer quick Playwright checks for site availability and simple visual verification.
+- Agent instructions now prefer quick `agent-browser` checks for site availability and simple visual verification.
 
 ### Fixed
 - Local runtime `.env` permissions now allow PHP-FPM to read the application key.

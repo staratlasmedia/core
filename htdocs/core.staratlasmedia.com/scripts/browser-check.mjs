@@ -1,5 +1,5 @@
+import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { chromium } from '@playwright/test';
 
 function envValue(name, fallback = '') {
   try {
@@ -12,17 +12,45 @@ function envValue(name, fallback = '') {
   }
 }
 
+function agentBrowser(args) {
+  const result = spawnSync('npx', ['agent-browser', ...args], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  if (result.status !== 0) {
+    throw new Error((result.stderr || result.stdout || 'agent-browser failed').trim());
+  }
+
+  return result.stdout.trim();
+}
+
+function parseValue(output) {
+  try {
+    return JSON.parse(output);
+  } catch {
+    return output;
+  }
+}
+
 const target = process.argv[2] ?? envValue('APP_URL', 'https://core.staratlasmedia.com');
 
-const browser = await chromium.launch({ headless: true });
-const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
-const response = await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 15000 });
+try {
+  agentBrowser(['open', target]);
 
-console.log(JSON.stringify({
-  ok: response?.ok() ?? false,
-  status: response?.status() ?? null,
-  title: await page.title(),
-  h1: await page.locator('h1').first().textContent().catch(() => null),
-}));
+  const status = parseValue(agentBrowser(['eval', "fetch(location.href, { method: 'HEAD' }).then(r => r.status)"]));
+  const title = parseValue(agentBrowser(['eval', 'document.title']));
+  const h1 = parseValue(agentBrowser(['eval', "document.querySelector('h1')?.textContent ?? null"]));
 
-await browser.close();
+  console.log(JSON.stringify({
+    ok: Number(status) >= 200 && Number(status) < 400,
+    status,
+    title,
+    h1,
+  }));
+} finally {
+  spawnSync('npx', ['agent-browser', 'close'], {
+    encoding: 'utf8',
+    stdio: 'ignore',
+  });
+}

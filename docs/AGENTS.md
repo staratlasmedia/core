@@ -52,10 +52,11 @@ Preferred order:
 
 ## Quick Browser Checks
 
-- Playwright and Chromium are available in the Laravel app for headless browser checks.
+- Use `agent-browser` from `vercel-labs/agent-browser`, installed locally in the Laravel app, for headless browser checks.
 - For fast online checks, run `npm run browser:check -- https://core.staratlasmedia.com` from `htdocs/core.staratlasmedia.com`.
 - Use this for quick availability checks and simple visual-change confirmation.
 - Keep it minimal by default: status, title, and first `h1`; use screenshots or deeper browser diagnostics only when the quick check fails or cannot prove the requested change.
+- For richer visual checks, use `npx agent-browser screenshot`, `npx agent-browser snapshot`, or `npx agent-browser batch` directly.
 
 ## Non-Negotiable Security Rules
 
