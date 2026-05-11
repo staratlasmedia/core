@@ -1,0 +1,40 @@
+# Local machine and tool state
+.bashrc
+.profile
+.ssh/
+.varnish-cache/
+.agents/
+.brv/
+.vscode/
+.idea/
+*.code-workspace
+
+# Runtime and maintenance data
+backups/
+logs/
+tmp/
+
+# Common generated dependencies and build output
+node_modules/
+vendor/
+dist/
+build/
+coverage/
+
+# Keep local logs, dumps, archives and extracts out of Git
+*.log
+*.sql
+*.sql.gz
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.bak
+*.old
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.tmp
