@@ -3,10 +3,12 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "browser:check": "node scripts/browser-check.mjs",
         "build": "vite build",
         "dev": "vite"
     },
     "devDependencies": {
+        "@playwright/test": "^1.59.1",
         "@tailwindcss/vite": "^4.0.0",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^3.1",

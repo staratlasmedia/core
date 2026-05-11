@@ -24,6 +24,12 @@
 - Il `CHANGELOG.md` in root e il registro ufficiale delle modifiche importanti del progetto.
 - Usare nel `CHANGELOG.md` le sezioni `Added`, `Changed`, `Fixed` e `Security` per ogni release o blocco `Unreleased`.
 
+## Verifiche browser rapide
+- Playwright e Chromium sono disponibili nel progetto Laravel per verifiche browser headless.
+- Per controllare rapidamente se il sito e' online usare `npm run browser:check -- https://core.staratlasmedia.com` da `htdocs/core.staratlasmedia.com`.
+- Usare questo controllo quando servono test veloci su disponibilita' del sito o modifiche grafiche semplici.
+- Mantenere l'uso minimale: status, title e primo `h1`; passare a screenshot o diagnosi estesa solo se il controllo rapido fallisce o non basta per lo scopo.
+
 ## Purpose
 
 This repository contains **Core**, the centralized headless backend for Star Atlas Media.
