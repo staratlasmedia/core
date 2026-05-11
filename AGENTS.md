@@ -16,6 +16,19 @@
 - Non usare pull request nel flusso quotidiano, salvo richiesta esplicita.
 - Non aggiungere segreti, chiavi private o credenziali al repository.
 
+## Project Identity
+- Project name: Core / Star Atlas Media System.
+- This repository uses ByteRover as the persistent project memory layer for repo-specific patterns, decisions, and operational rules.
+- Treat ByteRover memory as supporting context only, not as a replacement for reading the current source code, docs, and local `AGENTS.md` files.
+
+## ByteRover Memory Workflow
+Before starting any non-trivial task:
+
+1. Query ByteRover for relevant existing context.
+2. Read the current repository files directly related to the task.
+3. Prefer verified repository state over older memory if they conflict.
+4. Mention any important conflict between ByteRover memory and the current codebase before changing files.
+
 ## Documentazione e memoria
 - Per librerie, framework e API aggiornate usare prima Context7 via MCP, gia' disponibile nell'estensione.
 - Usare il web solo se Context7 non basta o se serve una fonte ufficiale specifica.
