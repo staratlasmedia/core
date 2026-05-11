@@ -5,6 +5,10 @@ Tutte le modifiche sostanziali al progetto vanno registrate qui.
 ## Unreleased
 
 ### Added
+- Phase 2 foundational database schema for sites, origins, identity, auth, push, comments, newsletter, audit, webhooks, and SDK tokens.
+- Eloquent foundation models with base relationships and encrypted casts for push, VAPID, API client, SDK token, and newsletter subscriber secrets.
+- Filament base resources for Sites, Site Origins, Legacy Push Apps, VAPID Key Sets, and read-only Push Subscriptions.
+- Phase 2 schema/security tests for critical tables, relationships, encrypted-at-rest fields, and Filament secret visibility.
 - Initial changelog scaffold.
 - Laravel 13 application bootstrap under `htdocs/core.staratlasmedia.com`.
 - Filament 5 panel configured for `/core-admin`.
@@ -17,6 +21,7 @@ Tutte le modifiche sostanziali al progetto vanno registrate qui.
 - Root `agent-browser.md` command reference linked from `AGENTS.md`.
 
 ### Changed
+- Users now include UUID, status, metadata, and soft-delete support for Core identity foundations.
 - Root `README.md` now documents the bootstrap layout and runtime targets.
 - Agent instructions now prefer quick `agent-browser` checks for site availability and simple visual verification.
 - Development logging now keeps debug enabled and writes to single, daily, PHP error log, and deprecation logs while Core is under construction.
