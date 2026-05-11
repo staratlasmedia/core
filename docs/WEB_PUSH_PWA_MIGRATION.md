@@ -14,6 +14,43 @@ This means:
 - import legacy subscriptions as historical/pending records;
 - send modern campaigns only to subscriptions confirmed by the new SDK or reconfirmed by the new worker flow.
 
+## Phase 4 Implementation
+
+Core now treats Push Groups as persistent entities through `push_groups`.
+
+The existing `sites.push_group` and `legacy_push_apps.merge_group` fields remain as compatibility strings, but canonical dashboard and generation flows use `push_group_id`.
+
+Initial Push Groups are seeded/backfilled for:
+
+```text
+clubalfa_it
+clubalfa_en
+motorisumotori_it
+mbenz_it
+notizieauto_it
+alfavirtualclub_it
+robotica_news
+```
+
+Filament exposes:
+
+- `/core-admin/push-groups` for PWA and Service Worker configuration, preview, and download;
+- `/core-admin/push-migration-dashboard` for legacy migration counters, charts, and app mapping summaries;
+- read-only masked VAPID key set views.
+
+Core uses `minishlink/web-push` through a custom service layer:
+
+```text
+App\Services\Push\WebPushClientFactory
+App\Services\Push\PushPayloadBuilder
+App\Services\Push\PushDeliveryService
+App\Services\Push\PushReportHandler
+App\Jobs\Push\SendPushCampaignJob
+App\Jobs\Push\SendPushBatchJob
+```
+
+Campaign dispatch remains limited to `core_sdk` and `core_reconfirmed` subscriptions.
+
 ## Current Legacy Service Worker Observation
 
 The current workers for:

@@ -156,12 +156,15 @@ class LegacyPushImportTest extends TestCase
             ->keyBy('legacy_appid');
 
         $this->assertSame('clubalfa_it', $apps[1]->merge_group);
+        $this->assertSame('clubalfa_it', $apps[1]->pushGroup->code);
         $this->assertSame('main', $apps[1]->section);
         $this->assertSame('clubalfa_it', $apps[11]->merge_group);
+        $this->assertSame('clubalfa_it', $apps[11]->pushGroup->code);
         $this->assertSame('automobili', $apps[11]->section);
         $this->assertSame('/automobili/smart_sw.js', $apps[11]->service_worker_url);
         $this->assertSame('/automobili/', $apps[11]->service_worker_scope);
         $this->assertSame('clubalfa_en', $apps[12]->merge_group);
+        $this->assertSame('clubalfa_en', $apps[12]->pushGroup->code);
         $this->assertSame('en', $apps[12]->section);
     }
 

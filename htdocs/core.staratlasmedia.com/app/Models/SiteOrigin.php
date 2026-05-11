@@ -23,4 +23,14 @@ class SiteOrigin extends CoreModel
     {
         return $this->hasMany(PushSubscription::class);
     }
+
+    public function bridgeSetupTokens(): HasMany
+    {
+        return $this->hasMany(BridgeSetupToken::class);
+    }
+
+    public function bridgeInstallations(): HasMany
+    {
+        return $this->hasMany(BridgeInstallation::class);
+    }
 }

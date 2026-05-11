@@ -6,7 +6,7 @@ export default defineConfig({
     emptyOutDir: true,
     lib: {
       entry: 'src/index.ts',
-      name: 'StarAtlasCore',
+      name: 'StarAtlasCoreSdk',
       formats: ['es', 'iife'],
       fileName: (format) => `core-sdk.${format}.js`,
     },

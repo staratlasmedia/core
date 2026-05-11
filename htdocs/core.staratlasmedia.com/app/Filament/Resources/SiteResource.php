@@ -36,6 +36,7 @@ class SiteResource extends Resource
             TextInput::make('name')->required()->maxLength(255),
             TextInput::make('canonical_origin')->required()->url()->maxLength(255),
             TextInput::make('language')->maxLength(16),
+            Select::make('push_group_id')->relationship('pushGroup', 'name')->searchable()->preload(),
             TextInput::make('push_group')->maxLength(255),
             Select::make('status')
                 ->options([
@@ -56,6 +57,7 @@ class SiteResource extends Resource
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('canonical_origin')->searchable(),
                 TextColumn::make('language')->sortable(),
+                TextColumn::make('pushGroup.code')->label('Push Group')->sortable(),
                 TextColumn::make('push_group')->sortable(),
                 TextColumn::make('status')->badge()->sortable(),
                 TextColumn::make('updated_at')->dateTime()->sortable(),

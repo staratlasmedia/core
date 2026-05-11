@@ -19,6 +19,11 @@ class LegacyPushApp extends CoreModel
         return $this->belongsTo(Site::class);
     }
 
+    public function pushGroup(): BelongsTo
+    {
+        return $this->belongsTo(PushGroup::class);
+    }
+
     public function vapidKeySet(): BelongsTo
     {
         return $this->belongsTo(VapidKeySet::class);

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PushDeliveryLog extends CoreModel
 {
+    public const CREATED_AT = null;
+
     public const UPDATED_AT = null;
 
     protected function casts(): array

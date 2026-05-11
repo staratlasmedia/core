@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Site extends CoreModel
@@ -16,6 +17,11 @@ class Site extends CoreModel
     public function origins(): HasMany
     {
         return $this->hasMany(SiteOrigin::class);
+    }
+
+    public function pushGroup(): BelongsTo
+    {
+        return $this->belongsTo(PushGroup::class);
     }
 
     public function allowedOrigins(): HasMany
@@ -46,6 +52,26 @@ class Site extends CoreModel
     public function pushSubscriptions(): HasMany
     {
         return $this->hasMany(PushSubscription::class);
+    }
+
+    public function bridgeSetupTokens(): HasMany
+    {
+        return $this->hasMany(BridgeSetupToken::class);
+    }
+
+    public function bridgeInstallations(): HasMany
+    {
+        return $this->hasMany(BridgeInstallation::class);
+    }
+
+    public function bridgeConfigVersions(): HasMany
+    {
+        return $this->hasMany(BridgeConfigVersion::class);
+    }
+
+    public function pluginUpdateDownloads(): HasMany
+    {
+        return $this->hasMany(PluginUpdateDownload::class);
     }
 
     public function comments(): HasMany

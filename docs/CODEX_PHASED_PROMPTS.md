@@ -439,6 +439,68 @@ DONE WHEN:
 - No secrets displayed.
 ```
 
+## Phase 4B — WordPress Bridge Dashboard, Setup Tokens, Private Updates
+
+```text
+Esegui Phase 4B: lato Core Laravel/Filament per il plugin WordPress unico Star Atlas Core Bridge.
+
+OBIETTIVO:
+
+Non implementare ancora il plugin WordPress. Aggiungere in Core le basi per configurare installazioni WordPress tramite setup token, gestire installazioni bridge, generare preview JSON di configurazione e servire update privati del plugin.
+
+DECISIONI:
+
+- Esiste un solo plugin generico: Star Atlas Core Bridge.
+- Core non genera fork diversi del plugin per sito.
+- Core genera setup token one-time per installazioni WordPress.
+- Il plugin consuma il token con POST /api/bridge/setup/claim.
+- Dopo il claim il plugin usa bridge_installation_id + secret/HMAC.
+- Core e' anche private update server del plugin, senza WordPress.org.
+
+CORE:
+
+- bridge_setup_tokens con token_hash, status, scadenza, revoca e consumed_by_installation_id.
+- bridge_installations con secret cifrato, fingerprint, versioni WP/plugin/PHP e heartbeat.
+- bridge_config_versions con config JSON, checksum, active/published.
+- plugin_packages, plugin_releases, plugin_update_downloads per update server privato.
+
+API SKELETON:
+
+- POST /api/bridge/setup/claim
+- GET /api/bridge/config
+- POST /api/bridge/heartbeat
+- POST /api/bridge/events
+- GET /api/bridge/plugin/update-check
+- GET /api/bridge/plugin/info
+- GET /api/bridge/plugin/download/{token}
+
+FILAMENT:
+
+- BridgeSetupTokenResource
+- BridgeInstallationResource
+- BridgeConfigVersionResource
+- PluginPackageResource
+- PluginReleaseResource
+- PluginUpdateDownloadResource read-only opzionale
+
+SICUREZZA:
+
+- Mostrare setup token raw una sola volta.
+- Salvare solo token_hash.
+- Salvare bridge_secret cifrato e mostrarne solo fingerprint.
+- Claim rate-limited.
+- Config/heartbeat/events/update check via HMAC skeleton.
+- Download ZIP tramite token temporaneo non guessable.
+
+DONE WHEN:
+
+- Tabelle, modelli, relazioni e risorse Filament esistono.
+- API skeleton registrate.
+- Config preview produce root, /automobili/ e /en/.
+- Update server privato ha package/release/download skeleton.
+- Test coprono claim one-time, HMAC, config preview e update check.
+```
+
 ## Phase 5 — SDK Skeleton
 
 ```text

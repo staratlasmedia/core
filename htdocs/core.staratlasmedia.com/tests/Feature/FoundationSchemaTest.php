@@ -6,6 +6,7 @@ use App\Filament\Resources\PushSubscriptionResource;
 use App\Filament\Resources\VapidKeySetResource;
 use App\Models\Comment;
 use App\Models\PublisherProvidedId;
+use App\Models\PushGroup;
 use App\Models\PushSubscriber;
 use App\Models\PushSubscription;
 use App\Models\PushTopic;
@@ -30,6 +31,7 @@ class FoundationSchemaTest extends TestCase
             'allowed_origins',
             'api_clients',
             'sdk_tokens',
+            'push_groups',
             'social_identities',
             'publisher_provided_ids',
             'auth_authorization_codes',
@@ -71,8 +73,28 @@ class FoundationSchemaTest extends TestCase
             $this->assertTrue(Schema::hasColumn('push_subscriptions', $column), "Missing push_subscriptions.{$column}.");
         }
 
+        foreach (['sites', 'legacy_push_apps', 'push_subscriptions'] as $table) {
+            $this->assertTrue(Schema::hasColumn($table, 'push_group_id'), "Missing {$table}.push_group_id.");
+        }
+
         $this->assertTrue(Schema::hasColumn('vapid_key_sets', 'private_key_encrypted'));
         $this->assertFalse(Schema::hasColumn('users', 'ppid'));
+    }
+
+    public function test_phase_four_push_groups_are_seeded_with_clubalfa_manifest_defaults(): void
+    {
+        $clubAlfaIt = PushGroup::query()->where('code', 'clubalfa_it')->firstOrFail();
+        $clubAlfaEn = PushGroup::query()->where('code', 'clubalfa_en')->firstOrFail();
+
+        $this->assertSame('/pwa/clubalfa-it', $clubAlfaIt->manifest_id);
+        $this->assertSame('/', $clubAlfaIt->manifest_scope);
+        $this->assertSame('/pwa-start/?app=clubalfa_it', $clubAlfaIt->manifest_start_url);
+        $this->assertSame('/smart_sw.js', $clubAlfaIt->service_worker_url);
+
+        $this->assertSame('/pwa/clubalfa-en', $clubAlfaEn->manifest_id);
+        $this->assertSame('/en/', $clubAlfaEn->manifest_scope);
+        $this->assertSame('/en/pwa-start/?app=clubalfa_en', $clubAlfaEn->manifest_start_url);
+        $this->assertSame('/en/smart_sw.js', $clubAlfaEn->service_worker_url);
     }
 
     public function test_core_model_relationships_are_wired(): void
@@ -83,6 +105,7 @@ class FoundationSchemaTest extends TestCase
             'canonical_origin' => 'https://www.clubalfa.it',
             'language' => 'it',
             'push_group' => 'clubalfa_it',
+            'push_group_id' => PushGroup::query()->where('code', 'clubalfa_it')->value('id'),
         ]);
 
         $origin = $site->origins()->create([
@@ -123,6 +146,7 @@ class FoundationSchemaTest extends TestCase
         ]);
 
         $this->assertSame($site->id, $origin->site->id);
+        $this->assertSame('clubalfa_it', $site->pushGroup->code);
         $this->assertSame('ppid_test', $user->publisherProvidedIds()->first()->ppid);
         $this->assertSame($parent->id, $reply->parent->id);
         $this->assertSame($reply->id, $parent->replies()->first()->id);
@@ -191,6 +215,8 @@ class FoundationSchemaTest extends TestCase
     public function test_filament_resources_do_not_expose_private_keys_and_keep_push_subscriptions_read_only(): void
     {
         $this->assertFalse(VapidKeySetResource::canCreate());
+        $this->assertFalse(VapidKeySetResource::canEdit(new VapidKeySet));
+        $this->assertFalse(VapidKeySetResource::canDelete(new VapidKeySet));
         $this->assertFalse(PushSubscriptionResource::canCreate());
         $this->assertFalse(PushSubscriptionResource::canEdit(new PushSubscription));
         $this->assertFalse(PushSubscriptionResource::canDelete(new PushSubscription));

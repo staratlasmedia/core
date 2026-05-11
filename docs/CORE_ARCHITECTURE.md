@@ -19,6 +19,7 @@ Core must support:
 - Filament administration;
 - SDK integration;
 - WordPress bridge plugin.
+- private update server for the WordPress bridge plugin.
 
 ## Public Surface
 
@@ -35,6 +36,31 @@ Core should expose only controlled public surfaces:
 ```
 
 Do not expose a broad public backend UI.
+
+## WordPress Bridge Core Support
+
+Core supports exactly one generic WordPress plugin:
+
+```text
+Star Atlas Core Bridge
+```
+
+Core does not generate site-specific plugin forks. Instead, Core/Filament generates one-time setup tokens for specific WordPress installations. The plugin consumes the setup token through:
+
+```text
+POST /api/bridge/setup/claim
+```
+
+After claim, Core stores the bridge installation and returns installation credentials once. Follow-up plugin calls use bridge installation ID plus the HMAC header skeleton:
+
+```text
+X-Core-Bridge-Id
+X-Core-Timestamp
+X-Core-Nonce
+X-Core-Signature
+```
+
+Core also acts as the private update server for the plugin, supporting update checks, plugin info metadata, and temporary signed download tokens without WordPress.org hosting.
 
 ## Admin Panel
 
@@ -115,6 +141,62 @@ api_clients
 - permissions JSON nullable
 - status
 - timestamps
+```
+
+### WordPress Bridge / Plugin Updates
+
+```text
+bridge_setup_tokens
+- id
+- uuid
+- token_hash
+- site_id nullable
+- push_group_id nullable
+- site_origin_id nullable
+- intended_* fields
+- status active/consumed/expired/revoked
+- expires_at
+- consumed_at nullable
+- consumed_by_installation_id nullable
+- created_by nullable
+- revoked_at nullable
+- metadata_json nullable
+- timestamps
+
+bridge_installations
+- id
+- uuid
+- site_id
+- push_group_id nullable
+- site_origin_id nullable
+- setup_token_id nullable
+- site_code / push_group_code
+- language / section
+- origin / wp URLs / detected_base_path
+- plugin_version / wordpress_version / php_version
+- status active/disabled/error/revoked
+- bridge_secret_encrypted
+- bridge_secret_fingerprint
+- last_seen_at nullable
+- last_config_sync_at nullable
+- metadata_json nullable
+- soft deletes
+- timestamps
+
+bridge_config_versions
+- id
+- bridge_installation_id nullable
+- site_id
+- push_group_id nullable
+- version
+- config_json
+- checksum
+- active
+- published_at nullable
+- timestamps
+
+plugin_packages / plugin_releases / plugin_update_downloads
+- define the private update server package, release ZIP metadata, release channels, and temporary download audit trail.
 ```
 
 ### Identity

@@ -20,6 +20,21 @@ https://core.staratlasmedia.com
 - MariaDB 11.8.
 - Redis queues/cache with Laravel Horizon at `/core-admin/horizon`.
 - Web Push delivery via `minishlink/web-push`.
+- Persistent Push Groups manage generated Service Worker and PWA manifest configuration.
+
+## Frontend SDK
+
+- `packages/core-sdk/` builds the TypeScript/Lit SDK with Vite.
+- Build command: `npm run build` from `packages/core-sdk/`.
+- Embeddable browser bundles are emitted to `htdocs/core.staratlasmedia.com/public/sdk/`.
+- Registered Web Components: `core-login-widget`, `core-comments-widget`, and `core-push-widget`.
+- Runtime config is read from `window.StarAtlasCore` first and can be overridden by component attributes.
+
+## Admin Surface
+
+- `/core-admin/push-groups` manages Push Groups and provides Service Worker / manifest preview and download.
+- `/core-admin/push-migration-dashboard` shows legacy push migration counters, charts, and app mapping summaries.
+- VAPID private keys and subscription secrets remain encrypted and are not displayed in Filament.
 
 ## Security Baseline
 

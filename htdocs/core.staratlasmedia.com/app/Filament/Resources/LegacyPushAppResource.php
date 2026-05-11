@@ -36,6 +36,7 @@ class LegacyPushAppResource extends Resource
             TextInput::make('origin')->required()->url()->maxLength(255),
             TextInput::make('language')->maxLength(16),
             TextInput::make('section')->maxLength(255),
+            Select::make('push_group_id')->relationship('pushGroup', 'name')->searchable()->preload(),
             TextInput::make('merge_group')->maxLength(255),
             TextInput::make('service_worker_url')->required()->maxLength(255),
             TextInput::make('service_worker_scope')->required()->maxLength(255),
@@ -53,6 +54,7 @@ class LegacyPushAppResource extends Resource
                 TextColumn::make('origin')->searchable(),
                 TextColumn::make('language')->sortable(),
                 TextColumn::make('section')->sortable(),
+                TextColumn::make('pushGroup.code')->label('Push Group')->sortable(),
                 TextColumn::make('merge_group')->sortable(),
                 TextColumn::make('service_worker_url')->searchable(),
             ])

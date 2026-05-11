@@ -5,12 +5,33 @@ Tutte le modifiche sostanziali al progetto vanno registrate qui.
 ## Unreleased
 
 ### Added
+- Phase 4B WordPress Bridge Core support with setup token, installation, config version, plugin package, plugin release, and plugin update download models/tables.
+- Filament WordPress Bridge resources for setup tokens, bridge installations, config versions, plugin packages, plugin releases, and read-only download audit.
+- Bridge API skeleton for setup claim, config sync, heartbeat, future events, private plugin update checks, plugin info, and temporary ZIP downloads.
+- Bridge configuration preview builder for ClubAlfa root, `/automobili/`, and `/en/` installation contexts.
+- Phase 5 Core SDK frontend skeleton with Vite/Lit Web Components for login, comments, and push widgets.
+- Embeddable SDK bundles in `public/sdk` with config resolution from `window.StarAtlasCore` and element attributes.
+- Push subscription scaffold that registers origin-local Service Workers, posts modern subscription/context payloads to Core, and flags existing subscriptions as legacy reconfirmation candidates.
+- SSO login scaffold with click-synchronous popup flow, redirect fallback, and silent iframe helper placeholder.
+- Phase 4 Push Groups as persistent PWA/Web Push configuration entities with seeded defaults for ClubAlfa, MotoriSuMotori, Mbenz, NotizieAuto, AlfaVirtualClub, and Robotica.
+- Filament Push Groups resource with Service Worker and manifest preview/download actions.
+- Filament Push Migration dashboard widgets for legacy status totals, reconfirmation rate, daily reconfirmations, pending vs reconfirmed, and legacy app mapping summaries.
+- Custom `minishlink/web-push` service layer and Redis/Horizon jobs for campaign and batch dispatch scaffolding.
+- Generator tests for clean Service Worker output and stable ClubAlfa IT/EN manifest fields.
 
 ### Changed
+- Sites, legacy push apps, and push subscriptions now include nullable `push_group_id` while retaining legacy string fields for compatibility/backfill.
+- Legacy import now links imported app mappings and subscriptions to canonical Push Groups.
+- VAPID key sets are read-only in Filament and public keys are masked in table views.
 
 ### Fixed
+- Push delivery logs now disable Eloquent timestamps for tables that use explicit attempted/delivered timestamps.
 
 ### Security
+- Bridge setup tokens are stored only as SHA-256 hashes, bridge secrets are encrypted at rest, and Filament displays fingerprints instead of raw secrets.
+- Bridge config, heartbeat, event, and plugin update endpoints require the HMAC header skeleton; plugin downloads use temporary hashed tokens.
+- Generated Service Workers use the new push-only payload shape and do not include `eval`, `fetch` handlers, or `data.target`.
+- VAPID private keys remain absent from Filament forms, tables, previews, generated downloads, and tests.
 
 ## 2026-05-11
 

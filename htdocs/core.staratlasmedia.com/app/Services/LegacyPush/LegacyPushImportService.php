@@ -3,6 +3,7 @@
 namespace App\Services\LegacyPush;
 
 use App\Models\LegacyPushApp;
+use App\Models\PushGroup;
 use App\Models\PushSubscription;
 use App\Models\Site;
 use App\Models\SiteOrigin;
@@ -22,7 +23,7 @@ class LegacyPushImportService
     private array $resolvedVapid = [];
 
     /**
-     * @var array<int, array{site: Site, origin: SiteOrigin, legacy_app: LegacyPushApp, vapid: VapidKeySet}>
+     * @var array<int, array{site: Site, origin: SiteOrigin, legacy_app: LegacyPushApp, push_group: ?PushGroup, vapid: VapidKeySet}>
      */
     private array $persistedApps = [];
 
@@ -182,6 +183,7 @@ class LegacyPushImportService
         $attributes = [
             'site_id' => $persisted['site']->id,
             'site_origin_id' => $persisted['origin']->id,
+            'push_group_id' => $persisted['push_group']?->id,
             'source' => 'legacy_import',
             'status' => 'legacy_import_pending',
             'legacy_push_app_id' => $persisted['legacy_app']->id,
@@ -219,13 +221,15 @@ class LegacyPushImportService
     /**
      * @param  array<string, mixed>  $mapping
      * @param  array<string, mixed>  $vapid
-     * @return array{site: Site, origin: SiteOrigin, legacy_app: LegacyPushApp, vapid: VapidKeySet}
+     * @return array{site: Site, origin: SiteOrigin, legacy_app: LegacyPushApp, push_group: ?PushGroup, vapid: VapidKeySet}
      */
     private function persistedAppFor(int $appid, array $mapping, array $vapid): array
     {
         if (isset($this->persistedApps[$appid])) {
             return $this->persistedApps[$appid];
         }
+
+        $pushGroup = $this->persistedPushGroupFor($mapping);
 
         $site = Site::query()->updateOrCreate(
             ['code' => $mapping['site_code']],
@@ -234,6 +238,7 @@ class LegacyPushImportService
                 'canonical_origin' => $mapping['origin'],
                 'language' => $mapping['language'] ?? null,
                 'push_group' => $mapping['push_group'] ?? null,
+                'push_group_id' => $pushGroup?->id,
                 'status' => 'active',
             ],
         );
@@ -258,6 +263,7 @@ class LegacyPushImportService
                 'language' => $mapping['language'] ?? null,
                 'section' => $mapping['section'] ?? null,
                 'merge_group' => $mapping['merge_group'] ?? null,
+                'push_group_id' => $pushGroup?->id,
                 'service_worker_url' => $mapping['service_worker_url'],
                 'service_worker_scope' => $mapping['service_worker_scope'],
                 'legacy_title' => $mapping['name'],
@@ -293,8 +299,44 @@ class LegacyPushImportService
             'site' => $site,
             'origin' => $origin,
             'legacy_app' => $legacyApp,
+            'push_group' => $pushGroup,
             'vapid' => $vapidKeySet,
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $mapping
+     */
+    private function persistedPushGroupFor(array $mapping): ?PushGroup
+    {
+        $code = $mapping['push_group'] ?? $mapping['merge_group'] ?? null;
+
+        if (! is_string($code) || $code === '') {
+            return null;
+        }
+
+        $defaults = config("core.push_groups.{$code}", []);
+
+        return PushGroup::query()->updateOrCreate(
+            ['code' => $code],
+            [
+                'name' => $defaults['name'] ?? $mapping['name'],
+                'language' => $defaults['language'] ?? ($mapping['language'] ?? null),
+                'status' => $defaults['status'] ?? 'active',
+                'manifest_id' => $defaults['manifest_id'] ?? null,
+                'manifest_name' => $defaults['manifest_name'] ?? ($defaults['name'] ?? $mapping['name']),
+                'manifest_short_name' => $defaults['manifest_short_name'] ?? null,
+                'manifest_scope' => $defaults['manifest_scope'] ?? null,
+                'manifest_start_url' => $defaults['manifest_start_url'] ?? null,
+                'service_worker_url' => $defaults['service_worker_url'] ?? ($mapping['service_worker_url'] ?? null),
+                'service_worker_scope' => $defaults['service_worker_scope'] ?? ($mapping['service_worker_scope'] ?? null),
+                'sw_version' => $defaults['sw_version'] ?? 'core-clean-v1',
+                'pwa_config_json' => $defaults['pwa_config_json'] ?? null,
+                'metadata_json' => [
+                    'source' => 'legacy_import_backfill',
+                ],
+            ],
+        );
     }
 
     /**

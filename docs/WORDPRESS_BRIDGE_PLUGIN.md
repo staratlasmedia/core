@@ -25,13 +25,26 @@ Service Workers must be served from the same origin as the pages they control. T
 
 The plugin is the local bridge between WordPress and Core.
 
+Core ships and manages one generic plugin only. Do not create custom plugin forks per site. Each WordPress installation is configured by consuming a Core-generated setup token.
+
+## Core Setup Flow
+
+1. Core admin creates a setup token in Filament for a site, origin, optional push group, language, section, and base path.
+2. The admin installs the generic **Star Atlas Core Bridge** plugin in WordPress.
+3. The admin pastes the setup token in the plugin.
+4. The plugin calls `POST /api/bridge/setup/claim`.
+5. Core validates token, origin, and base path, creates a bridge installation, and returns config plus credentials once.
+6. Future plugin calls use the bridge installation ID and HMAC headers.
+
+The setup token is shown once, stored only as a SHA-256 hash in Core, expires, and cannot be reused after it is consumed.
+
 ## Plugin Responsibilities
 
 ### 1. SDK Injection
 
 Inject Core SDK on public pages.
 
-The SDK config must include:
+The WordPress-side data must include:
 
 ```text
 site_code
@@ -39,9 +52,14 @@ origin
 language
 section
 source_url
+api_base_url
 source_title optional
+vapid_public_key optional, required for push subscribe
 WordPress terms/taxonomies optional
 ```
+
+The JavaScript SDK receives the same values as camelCase keys on `window.StarAtlasCore`
+or as kebab-case attributes on individual Web Components.
 
 Example:
 
@@ -52,10 +70,18 @@ Example:
     origin: "https://www.clubalfa.it",
     language: "it",
     section: "automobili",
-    sourceUrl: "https://www.clubalfa.it/automobili/example/"
+    sourceUrl: "https://www.clubalfa.it/automobili/example/",
+    apiBaseUrl: "https://core.staratlasmedia.com/api/v1",
+    serviceWorkerUrl: "/smart_sw.js",
+    serviceWorkerScope: "/",
+    vapidPublicKey: "PUBLIC_KEY_FROM_CORE"
   };
 </script>
-<script src="https://core.staratlasmedia.com/sdk/core-sdk.<hash>.js" async></script>
+<script src="https://core.staratlasmedia.com/sdk/core-sdk.iife.js" defer></script>
+
+<core-login-widget></core-login-widget>
+<core-comments-widget></core-comments-widget>
+<core-push-widget></core-push-widget>
 ```
 
 ### 2. Service Worker Local Serving
@@ -83,6 +109,8 @@ The returned worker must be the modern clean Core worker:
 ### 3. Manifest Serving
 
 Serve site-specific manifests.
+
+Core generates canonical manifest JSON from persistent Push Groups. The bridge plugin remains responsible for serving that content from the WordPress origin.
 
 ClubAlfa IT:
 
@@ -236,6 +264,53 @@ Core/Filament must provide for each site/push group:
 - changelog.
 
 The plugin should be able to fetch current config from Core and serve it locally.
+
+Phase 4B adds Filament management for:
+
+- bridge setup tokens;
+- bridge installations;
+- bridge config versions and JSON previews;
+- plugin packages;
+- plugin releases;
+- plugin update downloads.
+
+## Bridge API Skeleton
+
+```text
+POST /api/bridge/setup/claim
+GET  /api/bridge/config
+POST /api/bridge/heartbeat
+POST /api/bridge/events
+GET  /api/bridge/plugin/update-check
+GET  /api/bridge/plugin/info
+GET  /api/bridge/plugin/download/{token}
+```
+
+`/setup/claim` is rate-limited and uses the one-time setup token. The other private bridge endpoints use this HMAC header skeleton:
+
+```text
+X-Core-Bridge-Id
+X-Core-Timestamp
+X-Core-Nonce
+X-Core-Signature
+```
+
+The signature covers method, path, timestamp, nonce, and body hash.
+
+## Private Plugin Update Server
+
+Core is the private update server for **Star Atlas Core Bridge**. WordPress must be able to update the plugin through the standard Dashboard updates UI without WordPress.org hosting.
+
+Core tracks:
+
+- plugin package metadata;
+- stable, beta, and internal releases;
+- published/revoked release status;
+- ZIP path, SHA-256 checksum, and size metadata;
+- temporary non-guessable download tokens;
+- download attempts linked to bridge installations when available.
+
+Default update channel is `stable`. Download URLs must be temporary and package files must not be exposed publicly.
 
 ## Bootstrap Scope
 

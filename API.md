@@ -8,6 +8,12 @@ Bootstrap API surface for Star Atlas Core.
 https://core.staratlasmedia.com/api/v1
 ```
 
+Bridge setup and private plugin update endpoints live under:
+
+```text
+https://core.staratlasmedia.com/api/bridge
+```
+
 ## Current Bootstrap Endpoints
 
 ```text
@@ -18,6 +24,35 @@ GET /sites/{siteCode}/bootstrap
 `/health` returns a minimal service status.
 
 `/sites/{siteCode}/bootstrap` returns non-secret site bootstrap metadata such as origin, language, push group, manifest ID, and Service Worker path.
+
+## WordPress Bridge Endpoints
+
+```text
+POST /api/bridge/setup/claim
+GET  /api/bridge/config
+POST /api/bridge/heartbeat
+POST /api/bridge/events
+GET  /api/bridge/plugin/update-check
+GET  /api/bridge/plugin/info
+GET  /api/bridge/plugin/download/{token}
+```
+
+`/setup/claim` consumes a one-time setup token generated in Filament and returns bridge installation credentials only once.
+
+All follow-up bridge endpoints use the HMAC header skeleton:
+
+```text
+X-Core-Bridge-Id
+X-Core-Timestamp
+X-Core-Nonce
+X-Core-Signature
+```
+
+Plugin download URLs use temporary non-guessable tokens and are not public package listings.
+
+## PWA Asset Generation
+
+Core currently generates Service Worker and manifest content inside the Filament admin only. Preview and download remain under `/core-admin`; public WordPress origins must serve the generated files through the Star Atlas Core Bridge plugin.
 
 ## CORS
 
