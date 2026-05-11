@@ -27,6 +27,30 @@ The plugin is the local bridge between WordPress and Core.
 
 Core ships and manages one generic plugin only. Do not create custom plugin forks per site. Each WordPress installation is configured by consuming a Core-generated setup token.
 
+## Phase 6 Plugin Skeleton Status
+
+The repository now contains the generic plugin skeleton at:
+
+```text
+wordpress/star-atlas-core-bridge/
+```
+
+The plugin uses a namespaced `src/` structure and remains one installable package for every WordPress site. It does not fork by domain, language, section, push group, or Service Worker path.
+
+Phase 6 implements:
+
+- admin page “Star Atlas Core”;
+- setup token claim form;
+- config storage in `wp_options`;
+- HMAC client skeleton for private Core calls;
+- SDK injection on public pages;
+- path-aware route interception driven by Core config;
+- same-origin Service Worker and manifest skeleton responses;
+- PWA start, auth callback, and push-click skeleton routes;
+- standard WordPress update UI integration backed by Core update endpoints.
+
+Core remains the source of site-specific configuration. The plugin detects `home_url('/')`, origin, and base path, then stores the claimed Core config and uses those values for local route handling.
+
 ## Core Setup Flow
 
 1. Core admin creates a setup token in Filament for a site, origin, optional push group, language, section, and base path.
@@ -58,8 +82,8 @@ vapid_public_key optional, required for push subscribe
 WordPress terms/taxonomies optional
 ```
 
-The JavaScript SDK receives the same values as camelCase keys on `window.StarAtlasCore`
-or as kebab-case attributes on individual Web Components.
+The JavaScript SDK receives the saved Core config plus page context on `window.StarAtlasCoreConfig`.
+The SDK may map those values to camelCase keys or Web Component attributes internally.
 
 Example:
 
@@ -86,13 +110,8 @@ Example:
 
 ### 2. Service Worker Local Serving
 
-Maintain and serve Service Worker paths locally:
-
-```text
-/smart_sw.js
-/automobili/smart_sw.js
-/en/smart_sw.js
-```
+Maintain and serve Service Worker paths locally from the same WordPress origin.
+The plugin must use paths returned by Core config, not a universal hardcoded path.
 
 These paths must return JavaScript directly.
 
@@ -130,24 +149,11 @@ start_url: /en/pwa-start/?app=clubalfa_en
 
 `/automobili/` must use the same Italian manifest as root.
 
-The plugin may expose:
-
-```text
-/manifest.webmanifest
-/core-manifest.webmanifest?app=clubalfa_it
-/en/manifest.webmanifest
-```
-
-Exact route strategy can be chosen during implementation.
+The Phase 6 plugin skeleton intercepts the manifest path supplied by Core config and returns `application/manifest+json`.
 
 ### 4. PWA Start Routes
 
-Create:
-
-```text
-/pwa-start/
-/en/pwa-start/
-```
+Create path-aware PWA start routes from Core config.
 
 Purpose:
 
@@ -181,13 +187,7 @@ redirect /en/
 
 ### 5. SSO Callback
 
-Create:
-
-```text
-/core-auth/callback
-/core-auth/session
-/core-auth/logout
-```
+Create a path-aware `/core-auth/callback` skeleton relative to the installation base path.
 
 Responsibilities:
 
@@ -248,6 +248,18 @@ Expires: 0
 ```
 
 For manifests, use moderate/no-cache during rollout.
+
+### 10. Private Plugin Updates
+
+The plugin includes an update client skeleton and integrates with:
+
+```text
+pre_set_site_transient_update_plugins
+plugins_api
+upgrader_process_complete
+```
+
+Update checks call Core with bridge credentials and HMAC headers. Core returns metadata and, when an update is available, a temporary signed package URL. The plugin never places the raw bridge secret in URLs and does not rely on WordPress.org.
 
 ### 9. Core Dashboard Integration
 
@@ -312,14 +324,6 @@ Core tracks:
 
 Default update channel is `stable`. Download URLs must be temporary and package files must not be exposed publicly.
 
-## Bootstrap Scope
+## Phase Boundaries
 
-In first Core bootstrap, do not build the full WordPress plugin.
-
-But create:
-
-- documentation;
-- plugin skeleton plan;
-- expected routes;
-- expected config keys;
-- maybe a `/wordpress-plugin/` or `/plugins/star-atlas-core-bridge/` skeleton if requested in a later phase.
+Phase 6 is a functional skeleton only. It does not implement full SSO, comments, push preferences, push sending, ZIP packaging, site branding UI, or full auto-update policy logic.

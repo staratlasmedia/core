@@ -567,22 +567,27 @@ FUNZIONI SKELETON:
 
 - SDK injection;
 - config admin minimale;
-- API endpoint per configurazione;
-- service worker path handling;
-- manifest path handling;
-- /pwa-start/ route;
-- /core-auth/callback route;
+- setup token flow verso `POST /api/bridge/setup/claim`;
+- salvataggio config in `wp_options`;
+- HTTP client Core + HMAC client skeleton;
+- service worker path handling guidato da config Core;
+- manifest path handling guidato da config Core;
+- `/pwa-start/` route relativa al base path;
+- `/core-auth/callback` route relativa al base path;
+- `/core-push-click/{token}` route relativa al base path;
 - no-cache headers per service worker;
 - passaggio source_url e contesto pagina.
+- private updater skeleton via WordPress standard update UI.
 
-PATH DA SUPPORTARE:
+REGOLE:
 
-- /smart_sw.js
-- /automobili/smart_sw.js
-- /en/smart_sw.js
-- /pwa-start/
-- /en/pwa-start/
-- /core-auth/callback
+- Un solo plugin generico installabile su qualsiasi WordPress.
+- Nessun fork per sito.
+- Non hardcodare domini, path, site_code, push_group o sezioni.
+- Tutti i path specifici arrivano da Core tramite setup token/config.
+- Service Worker e manifest sono serviti dallo stesso origin WordPress.
+- `window.StarAtlasCoreConfig` contiene config salvata + contesto pagina.
+- Usare solo `source_url`; non usare canonical/external URL fields o ID post esterni.
 
 NON implementare ancora:
 
@@ -590,12 +595,18 @@ NON implementare ancora:
 - comments completi;
 - taxonomy preferences;
 - full admin UI complessa.
+- invio push;
+- ZIP finale;
+- auto-update policy completa.
 
 DONE WHEN:
 
 - Plugin skeleton installabile.
 - Route principali definite.
 - Può servire worker/manifest placeholder moderni.
+- Admin page minima presente.
+- Setup token flow skeleton presente.
+- Updater client skeleton presente.
 - Documentazione plugin aggiornata.
 ```
 

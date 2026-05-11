@@ -5,6 +5,7 @@ Tutte le modifiche sostanziali al progetto vanno registrate qui.
 ## Unreleased
 
 ### Added
+- Phase 6 Star Atlas Core Bridge WordPress plugin skeleton with namespaced bootstrap, setup token admin flow, config storage, path-aware SDK/Service Worker/manifest/PWA/auth/push-click route skeletons, HMAC Core client, and private updater client integration.
 - Phase 4B WordPress Bridge Core support with setup token, installation, config version, plugin package, plugin release, and plugin update download models/tables.
 - Filament WordPress Bridge resources for setup tokens, bridge installations, config versions, plugin packages, plugin releases, and read-only download audit.
 - Bridge API skeleton for setup claim, config sync, heartbeat, future events, private plugin update checks, plugin info, and temporary ZIP downloads.
@@ -28,6 +29,7 @@ Tutte le modifiche sostanziali al progetto vanno registrate qui.
 - Push delivery logs now disable Eloquent timestamps for tables that use explicit attempted/delivered timestamps.
 
 ### Security
+- Star Atlas Core Bridge stores the bridge secret for HMAC use but only shows the fingerprint in admin; update downloads use Core-issued temporary URLs instead of exposing secrets in query strings.
 - Bridge setup tokens are stored only as SHA-256 hashes, bridge secrets are encrypted at rest, and Filament displays fingerprints instead of raw secrets.
 - Bridge config, heartbeat, event, and plugin update endpoints require the HMAC header skeleton; plugin downloads use temporary hashed tokens.
 - Generated Service Workers use the new push-only payload shape and do not include `eval`, `fetch` handlers, or `data.target`.
