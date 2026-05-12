@@ -8,43 +8,49 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('newsletter_subscribers', function (Blueprint $table): void {
-            $table->uuid('uuid')->nullable()->unique()->after('id');
-            $table->foreignId('push_group_id')->nullable()->after('site_id')->constrained('push_groups')->nullOnDelete();
-            $table->foreignId('bridge_installation_id')->nullable()->after('push_group_id')->constrained('bridge_installations')->nullOnDelete();
-            $table->char('normalized_email_hash', 64)->nullable()->after('email_hash')->index();
-            $table->string('source_title')->nullable()->after('source_url_hash');
-            $table->string('source_type')->nullable()->after('source_title')->index();
-            $table->string('consent_version')->nullable()->after('source_type');
-            $table->char('consent_ip_hash', 64)->nullable()->after('consent_version')->index();
-            $table->char('consent_user_agent_hash', 64)->nullable()->after('consent_ip_hash')->index();
-            $table->timestamp('consented_at')->nullable()->after('consent_user_agent_hash');
-            $table->timestamp('confirmed_at')->nullable()->after('consented_at');
-            $table->timestamp('bounced_at')->nullable()->after('unsubscribed_at');
-            $table->timestamp('complained_at')->nullable()->after('bounced_at');
-            $table->timestamp('last_sent_at')->nullable()->after('complained_at');
+        if (! Schema::hasColumn('newsletter_subscribers', 'uuid')) {
+            Schema::table('newsletter_subscribers', function (Blueprint $table): void {
+                $table->uuid('uuid')->nullable()->unique()->after('id');
+                $table->foreignId('push_group_id')->nullable()->after('site_id')->constrained('push_groups')->nullOnDelete();
+                $table->foreignId('bridge_installation_id')->nullable()->after('push_group_id')->constrained('bridge_installations')->nullOnDelete();
+                $table->char('normalized_email_hash', 64)->nullable()->after('email_hash')->index();
+                $table->string('source_title')->nullable()->after('source_url_hash');
+                $table->string('source_type')->nullable()->after('source_title')->index();
+                $table->string('consent_version')->nullable()->after('source_type');
+                $table->char('consent_ip_hash', 64)->nullable()->after('consent_version')->index();
+                $table->char('consent_user_agent_hash', 64)->nullable()->after('consent_ip_hash')->index();
+                $table->timestamp('consented_at')->nullable()->after('consent_user_agent_hash');
+                $table->timestamp('confirmed_at')->nullable()->after('consented_at');
+                $table->timestamp('bounced_at')->nullable()->after('unsubscribed_at');
+                $table->timestamp('complained_at')->nullable()->after('bounced_at');
+                $table->timestamp('last_sent_at')->nullable()->after('complained_at');
 
-            $table->index(['push_group_id', 'status']);
-            $table->index(['bridge_installation_id', 'status'], 'newsletter_subscribers_installation_status_idx');
-        });
+                $table->index(['push_group_id', 'status']);
+                $table->index(['bridge_installation_id', 'status'], 'newsletter_subscribers_installation_status_idx');
+            });
+        }
 
-        Schema::table('newsletter_lists', function (Blueprint $table): void {
-            $table->uuid('uuid')->nullable()->unique()->after('id');
-            $table->foreignId('push_group_id')->nullable()->after('site_id')->constrained('push_groups')->nullOnDelete();
-            $table->string('code')->nullable()->after('push_group_id')->index();
-            $table->text('description')->nullable()->after('name');
-            $table->string('language', 16)->nullable()->after('description')->index();
-            $table->unsignedBigInteger('default_from_identity_id')->nullable()->after('status')->index();
-            $table->boolean('double_opt_in')->nullable()->after('default_from_identity_id');
+        if (! Schema::hasColumn('newsletter_lists', 'uuid')) {
+            Schema::table('newsletter_lists', function (Blueprint $table): void {
+                $table->uuid('uuid')->nullable()->unique()->after('id');
+                $table->foreignId('push_group_id')->nullable()->after('site_id')->constrained('push_groups')->nullOnDelete();
+                $table->string('code')->nullable()->after('push_group_id')->index();
+                $table->text('description')->nullable()->after('name');
+                $table->string('language', 16)->nullable()->after('description')->index();
+                $table->unsignedBigInteger('default_from_identity_id')->nullable()->after('status')->index();
+                $table->boolean('double_opt_in')->nullable()->after('default_from_identity_id');
 
-            $table->unique('code', 'newsletter_lists_code_unique');
-            $table->index(['push_group_id', 'status']);
-        });
+                $table->unique('code', 'newsletter_lists_code_unique');
+                $table->index(['push_group_id', 'status']);
+            });
+        }
 
-        Schema::table('newsletter_list_subscriber', function (Blueprint $table): void {
-            $table->text('source_url')->nullable()->after('unsubscribed_at');
-            $table->json('metadata_json')->nullable()->after('source_url');
-        });
+        if (! Schema::hasColumn('newsletter_list_subscriber', 'source_url')) {
+            Schema::table('newsletter_list_subscriber', function (Blueprint $table): void {
+                $table->text('source_url')->nullable()->after('unsubscribed_at');
+                $table->json('metadata_json')->nullable()->after('source_url');
+            });
+        }
 
         Schema::create('email_sender_identities', function (Blueprint $table): void {
             $table->id();
@@ -140,8 +146,8 @@ return new class extends Migration
 
         Schema::create('newsletter_subscriber_topic_preferences', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('newsletter_subscriber_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('audience_topic_id')->constrained('audience_topics')->cascadeOnDelete();
+            $table->foreignId('newsletter_subscriber_id')->constrained(indexName: 'nsp_subscriber_fk')->cascadeOnDelete();
+            $table->foreignId('audience_topic_id')->constrained('audience_topics', indexName: 'nsp_topic_fk')->cascadeOnDelete();
             $table->string('status')->default('subscribed')->index();
             $table->string('source')->default('explicit')->index();
             $table->text('source_url')->nullable();
@@ -221,7 +227,7 @@ return new class extends Migration
 
         Schema::create('audience_preference_form_topics', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('audience_preference_form_id')->constrained('audience_preference_forms')->cascadeOnDelete();
+            $table->foreignId('audience_preference_form_id')->constrained('audience_preference_forms', indexName: 'apft_form_fk')->cascadeOnDelete();
             $table->foreignId('audience_topic_id')->constrained('audience_topics')->cascadeOnDelete();
             $table->integer('sort_order')->default(0);
             $table->boolean('default_selected')->default(false);
@@ -404,7 +410,7 @@ return new class extends Migration
         Schema::create('editorial_content_item_terms', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('editorial_content_item_id')->constrained('editorial_content_items')->cascadeOnDelete();
-            $table->foreignId('editorial_content_taxonomy_term_id')->constrained('editorial_content_taxonomy_terms')->cascadeOnDelete();
+            $table->foreignId('editorial_content_taxonomy_term_id')->constrained('editorial_content_taxonomy_terms', indexName: 'ecit_term_fk')->cascadeOnDelete();
             $table->timestamps();
 
             $table->unique(['editorial_content_item_id', 'editorial_content_taxonomy_term_id'], 'editorial_item_term_unique');
@@ -412,7 +418,7 @@ return new class extends Migration
 
         Schema::create('editorial_content_source_post_types', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('editorial_content_source_id')->constrained('editorial_content_sources')->cascadeOnDelete();
+            $table->foreignId('editorial_content_source_id')->constrained('editorial_content_sources', indexName: 'ecsp_source_fk')->cascadeOnDelete();
             $table->string('post_type')->index();
             $table->boolean('enabled')->default(true);
             $table->boolean('include_in_digest')->default(true);
@@ -422,7 +428,7 @@ return new class extends Migration
 
         Schema::create('editorial_content_source_taxonomies', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('editorial_content_source_id')->constrained('editorial_content_sources')->cascadeOnDelete();
+            $table->foreignId('editorial_content_source_id')->constrained('editorial_content_sources', indexName: 'ecst_source_fk')->cascadeOnDelete();
             $table->string('taxonomy')->index();
             $table->boolean('enabled')->default(true);
             $table->boolean('import_terms')->default(true);
@@ -541,7 +547,7 @@ return new class extends Migration
         Schema::create('newsletter_campaign_content_items', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('newsletter_campaign_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('editorial_content_item_id')->constrained('editorial_content_items')->cascadeOnDelete();
+            $table->foreignId('editorial_content_item_id')->constrained('editorial_content_items', indexName: 'ncci_item_fk')->cascadeOnDelete();
             $table->integer('sort_order')->default(0);
             $table->string('role')->nullable();
             $table->json('metadata_json')->nullable();
@@ -605,8 +611,8 @@ return new class extends Migration
 
         Schema::create('newsletter_digest_recipe_sources', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('newsletter_digest_recipe_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('editorial_content_source_id')->constrained('editorial_content_sources')->cascadeOnDelete();
+            $table->foreignId('newsletter_digest_recipe_id')->constrained(indexName: 'ndrs_recipe_fk')->cascadeOnDelete();
+            $table->foreignId('editorial_content_source_id')->constrained('editorial_content_sources', indexName: 'ndrs_source_fk')->cascadeOnDelete();
             $table->boolean('enabled')->default(true);
             $table->integer('sort_order')->default(0);
             $table->json('metadata_json')->nullable();
@@ -615,7 +621,7 @@ return new class extends Migration
 
         Schema::create('newsletter_digest_recipe_topics', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('newsletter_digest_recipe_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('newsletter_digest_recipe_id')->constrained(indexName: 'ndrt_recipe_fk')->cascadeOnDelete();
             $table->foreignId('audience_topic_id')->constrained('audience_topics')->cascadeOnDelete();
             $table->string('include_mode')->default('include')->index();
             $table->json('metadata_json')->nullable();
