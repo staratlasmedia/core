@@ -20,6 +20,9 @@
 - Do not use wildcard CORS for credentialed requests.
 - Add `Vary: Origin` when the CORS response depends on request origin.
 - Rate-limit public API routes.
+- Newsletter unsubscribe requires a Core-issued token; subscriber UUID alone is not a public credential.
+- Newsletter click tracking must redirect only to URLs bound to stored token metadata.
+- SES/SNS webhooks must verify SNS signatures before event processing and remain outside Cloudflare Access.
 
 ## Admin
 

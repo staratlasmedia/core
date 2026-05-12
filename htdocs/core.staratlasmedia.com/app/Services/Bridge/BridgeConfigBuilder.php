@@ -7,13 +7,17 @@ use App\Models\PushGroup;
 use App\Models\Site;
 use App\Models\SiteOrigin;
 use App\Services\Auth\BridgeCallbackUrlResolver;
+use App\Services\Audience\AudiencePreferenceFormResolver;
 use App\Services\Comments\CommentSettingsResolver;
+use App\Services\Newsletter\NewsletterSettingsResolver;
 
 class BridgeConfigBuilder
 {
     public function __construct(
         private readonly BridgeCallbackUrlResolver $callbackUrlResolver,
         private readonly CommentSettingsResolver $commentSettings,
+        private readonly NewsletterSettingsResolver $newsletterSettings,
+        private readonly AudiencePreferenceFormResolver $preferenceForms,
     ) {}
 
     /**
@@ -122,6 +126,24 @@ class BridgeConfigBuilder
             'status_endpoint' => $this->pathWithBase($basePath, '/core-comments/status'),
             'login_required_message' => 'Accedi per commentare.',
             'disabled_message' => 'I commenti non sono disponibili per questa pagina.',
+        ];
+
+        $newsletterSettings = $this->newsletterSettings->resolve(
+            siteId: $site?->id,
+            pushGroupId: $pushGroup?->id,
+            bridgeInstallationId: $bridgeInstallation?->id,
+        );
+        $preferenceForm = $this->preferenceForms->resolve($site?->id, $pushGroup?->id, $bridgeInstallation?->id, 'newsletter');
+
+        $config['newsletter'] = $newsletterSettings->toArray() + [
+            'subscribe_endpoint' => '/api/v1/newsletter/subscribe',
+            'preferences_endpoint' => '/api/v1/newsletter/preferences',
+            'disabled_message' => 'La newsletter non e disponibile per questa sezione.',
+            'preference_form' => $preferenceForm ? [
+                'code' => $preferenceForm->code,
+                'require_at_least_one_topic' => (bool) $preferenceForm->require_at_least_one_topic,
+                'topics' => [],
+            ] : null,
         ];
 
         if ($bridgeInstallation !== null) {

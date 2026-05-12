@@ -15,7 +15,7 @@ Core must support:
 - Web Push legacy migration and new subscriptions;
 - PWA/Service Worker configuration;
 - SSO foundations;
-- comments and newsletter foundations;
+- comments and newsletter editorial foundations;
 - Filament administration;
 - SDK integration;
 - WordPress bridge plugin.
@@ -36,6 +36,24 @@ Core should expose only controlled public surfaces:
 ```
 
 Do not expose a broad public backend UI.
+
+## Phase 9 Newsletter Architecture
+
+Core is the central newsletter system. WordPress sites do not manage separate newsletter lists.
+
+Phase 9 adds:
+
+- `newsletter_settings` with bridge installation, push group, site, and global fallback resolution;
+- encrypted subscribers, lists, suppressions, imports, campaigns, templates, delivery logs, events, previews, and tokens;
+- canonical `audience_topics` shared by newsletter and push, with compatibility mappings for legacy `push_topics`;
+- global editorial content sources for RSS/Atom, WordPress REST, manual content, and future custom APIs;
+- digest recipes/runs that refresh explicitly attached content sources just in time, then create campaign drafts for editorial review only;
+- global AI provider configuration used first by newsletter drafting;
+- SES sender identities and SNS webhook event storage.
+
+Safe defaults are mandatory: no mass send, no automatic digest send, no email after CSV import, no automatic AI calls, and no continuous production content polling unless explicitly enabled. Phase 9B centralizes these checks in a newsletter operational gate. Digest generation may refresh only the configured active RSS/WordPress sources attached to that recipe, with bounded limits, immediately before creating the draft.
+
+Open/click tracking is tokenized. Click redirects use the URL stored in token metadata. Open rate is an image-pixel metric and does not prove that a user read the email.
 
 ## WordPress Bridge Core Support
 

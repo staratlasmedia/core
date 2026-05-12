@@ -709,34 +709,66 @@ Phase 8 implementation notes:
 - Resolve settings via `CommentSettingsResolver` with fallback disabled.
 - Write API is `POST /api/bridge/comments` behind Bridge HMAC only.
 
-## Phase 9 — Newsletter Skeleton
+## Phase 9 — Newsletter Editorial Platform
 
 ```text
-Esegui Phase 9: newsletter skeleton.
+Esegui Phase 9: Newsletter Editorial Platform / Audience Topics / Editorial Content Sources / Amazon SES / AI Drafting / Import Skeleton.
 
 OBIETTIVO:
 
-Preparare modulo newsletter senza invio reale massivo.
+Preparare una base newsletter funzionale e configurabile senza invio massivo production.
 
 CORE:
 
-- newsletter_subscribers
-- newsletter_lists
-- newsletter_events
-- ses_webhook_events
-- config placeholders for SES/SNS
-- webhook route skeleton with signature validation placeholder
+- newsletter_settings con fallback disabled;
+- audience_topics canonico condiviso newsletter/push senza rompere push_topics;
+- CSV import con upload, mapping, dry-run, report, duplicate/suppression detection e commit esplicito;
+- content sources RSS/Atom/WordPress REST con manual test fetch limitato e refresh just-in-time prima della generazione digest;
+- digest recipes/runs che creano draft in editorial_review;
+- campaign/template/preview/delivery/event skeleton;
+- provider AI globali disabled by default con test manuale e mock se non configurati;
+- sender identities SES e controlled test email solo manuale admin;
+- SNS webhook SES con verifica firma;
+- open/click tracking tokenizzato.
 
 NON implementare ancora:
 
-- real SES send;
-- massive campaigns;
-- production webhook handling without credentials;
-- image proxy unless requested.
+- invio massivo production;
+- auto-send digest;
+- email automatiche dopo import;
+- chiamate AI automatiche;
+- social/Telegram;
+- polling production automatico;
+- crawling aggressivo;
+- topic/brand/category definitivi hardcoded.
 
 DONE WHEN:
 
-- Tables/resources skeleton ready.
-- Webhook skeleton exists.
-- No credentials hardcoded.
+- Phase 9 schema/models/services/resources/API/docs presenti.
+- Controlled test email solo verso indirizzo esplicitamente inserito.
+- CSV import dry-run/commit funziona e non invia.
+- AI test usa provider configurato o placeholder marcato.
+- RSS/WordPress manual test fetch e refresh bounded prima della generazione digest funzionano.
+```
+
+## Phase 9B — Newsletter Hardening / Operational Validation
+
+```text
+Esegui Phase 9B senza aggiungere un nuovo grande modulo.
+
+OBIETTIVO:
+
+- Verificare e completare la base newsletter Phase 9;
+- applicare un gate operativo centrale per import, send/test send, AI draft, content persistence e digest draft;
+- rendere Filament navigabile per subscribers, lists, imports, campaigns, digest, delivery logs, engagement events, SNS events, content items, AI jobs e audience settings;
+- mantenere no mass-send, no auto-send digest, no polling production, no AI automatico.
+
+DONE WHEN:
+
+- CSV import richiede dry-run prima del commit e non invia email;
+- SES test email e SNS webhook sono manuali/verificati/sicuri;
+- content source preview non persiste di default;
+- unsubscribe pubblico richiede token;
+- open rate e metriche sono documentate come metriche operative, non lettura certa;
+- test e documentazione sono allineati.
 ```

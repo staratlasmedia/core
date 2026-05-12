@@ -6,6 +6,9 @@ use App\Http\Controllers\Comments\BridgeCommentController;
 use App\Http\Controllers\Comments\InternalCommentModerationController;
 use App\Http\Controllers\Comments\PublicCommentController;
 use App\Http\Controllers\Comments\PublicCommentThreadController;
+use App\Http\Controllers\Newsletter\NewsletterTrackingController;
+use App\Http\Controllers\Newsletter\PublicNewsletterController;
+use App\Http\Controllers\Webhooks\AwsSesSnsWebhookController;
 use App\Http\Middleware\VerifyBridgeHmac;
 use Illuminate\Support\Facades\Route;
 
@@ -37,6 +40,15 @@ Route::middleware('throttle:60,1')->prefix('v1')->group(function (): void {
         ->middleware('throttle:120,1');
     Route::get('/comments', [PublicCommentController::class, 'index'])
         ->middleware('throttle:120,1');
+
+    Route::post('/newsletter/subscribe', [PublicNewsletterController::class, 'subscribe'])
+        ->middleware('throttle:30,1');
+    Route::post('/newsletter/confirm', [PublicNewsletterController::class, 'confirm'])
+        ->middleware('throttle:30,1');
+    Route::post('/newsletter/unsubscribe', [PublicNewsletterController::class, 'unsubscribe'])
+        ->middleware('throttle:30,1');
+    Route::match(['get', 'post'], '/newsletter/preferences', [PublicNewsletterController::class, 'preferences'])
+        ->middleware('throttle:60,1');
 });
 
 Route::prefix('bridge')->group(function (): void {
@@ -53,6 +65,7 @@ Route::prefix('bridge')->group(function (): void {
         Route::post('/comments/{comment}/reactions', [BridgeCommentController::class, 'react']);
         Route::delete('/comments/{comment}/reactions/{reactionType}', [BridgeCommentController::class, 'destroyReaction']);
         Route::post('/comments/{comment}/reports', [BridgeCommentController::class, 'report']);
+        Route::post('/newsletter/subscribe', [PublicNewsletterController::class, 'subscribe']);
     });
 
     Route::get('/plugin/download/{token}', [BridgePluginController::class, 'download'])
@@ -64,3 +77,11 @@ Route::prefix('internal')->middleware(['auth', 'throttle:30,1'])->group(function
     Route::patch('/comments/{comment}/moderate', [InternalCommentModerationController::class, 'moderate']);
     Route::patch('/comments/threads/{thread}', [InternalCommentModerationController::class, 'updateThread']);
 });
+
+Route::post('/webhooks/aws/sns/ses', AwsSesSnsWebhookController::class)
+    ->middleware('throttle:120,1');
+
+Route::get('/newsletter/o/{token}.gif', [NewsletterTrackingController::class, 'open'])
+    ->middleware('throttle:240,1');
+Route::get('/newsletter/c/{token}', [NewsletterTrackingController::class, 'click'])
+    ->middleware('throttle:240,1');

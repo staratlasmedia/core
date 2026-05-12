@@ -21,6 +21,10 @@ GET /health
 GET /sites/{siteCode}/bootstrap
 GET /comments/threads/resolve
 GET /comments
+POST /newsletter/subscribe
+POST /newsletter/confirm
+POST /newsletter/unsubscribe
+GET|POST /newsletter/preferences
 ```
 
 `/health` returns a minimal service status.
@@ -30,6 +34,14 @@ GET /comments
 `/comments/threads/resolve` resolves the Phase 8 comment thread for `site_code + source_url` using normalized `source_url` and returns disabled state when effective settings disable comments.
 
 `/comments` returns approved comments only for the resolved thread. Public reads are exact-origin CORS and rate-limited.
+
+`/newsletter/subscribe` creates a pending or subscribed Core newsletter subscriber only when effective newsletter settings are enabled. It accepts `site_code`, `email`, optional `list_code`, `language`, `source_url`, `consent_version`, and selected `topic_ids`. When effective settings require consent, `consent_version` is mandatory. Core stores IP and user-agent hashes for consent evidence.
+
+`/newsletter/confirm` consumes a hashed confirmation token for double opt-in.
+
+`/newsletter/unsubscribe` unsubscribes by a valid active unsubscribe token only. Subscriber UUID alone is not accepted by the public endpoint.
+
+`/newsletter/preferences` returns active, visible newsletter audience topics for a `site_code`. POST can save topic preferences for a subscriber UUID, but only for topics allowed in the newsletter channel.
 
 ## WordPress Bridge Endpoints
 
@@ -45,6 +57,7 @@ POST /api/bridge/comments
 POST /api/bridge/comments/{comment}/reactions
 DELETE /api/bridge/comments/{comment}/reactions/{reactionType}
 POST /api/bridge/comments/{comment}/reports
+POST /api/bridge/newsletter/subscribe
 ```
 
 `/setup/claim` consumes a one-time setup token generated in Filament and returns bridge installation credentials only once.
@@ -61,6 +74,20 @@ X-Core-Signature
 Plugin download URLs use temporary non-guessable tokens and are not public package listings.
 
 Phase 8 comment writes are server-to-server Bridge calls only. `POST /api/bridge/comments` requires HMAC, validates the bridge installation and effective comment settings, stores only hashes for IP/user agent/email, and creates a moderation event for each created comment.
+
+Phase 9 newsletter bridge calls reuse HMAC. WordPress must pass Core site/list/topic context to Core and must not maintain independent newsletter lists.
+
+## Webhooks And Tracking
+
+```text
+POST /api/webhooks/aws/sns/ses
+GET  /newsletter/o/{token}.gif
+GET  /newsletter/c/{token}
+```
+
+The SES/SNS webhook is public but must verify Amazon SNS signatures before processing. It stores payload/signature hashes, logs subscription confirmations without auto-confirming by default, and must not be protected by Cloudflare Zero Trust Access.
+
+Open/click endpoints use raw tokens only in URLs; Core stores only token hashes. Click redirects use the target URL stored in token metadata rather than trusting arbitrary request parameters. Open rate is an image-pixel metric and does not guarantee reading.
 
 ## PWA Asset Generation
 

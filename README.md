@@ -34,6 +34,8 @@ https://core.staratlasmedia.com
 
 - `/core-admin/push-groups` manages Push Groups and provides Service Worker / manifest preview and download.
 - `/core-admin/push-migration-dashboard` shows legacy push migration counters, charts, and app mapping summaries.
+- `/core-admin/newsletter-dashboard` shows Phase 9B newsletter operational metrics, imports, SES/SNS health, content source health, and AI job health.
+- Newsletter, AI, Audience, and Editorial Content resources are manual-first and keep imports, test email, AI drafting, content persistence, and digest drafts behind explicit settings gates.
 - VAPID private keys and subscription secrets remain encrypted and are not displayed in Filament.
 
 ## Security Baseline

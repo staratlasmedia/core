@@ -5,6 +5,8 @@ Tutte le modifiche sostanziali al progetto vanno registrate qui.
 ## Unreleased
 
 ### Added
+- Phase 9B newsletter hardening with a centralized operational gate, import commit audit fields, SNS webhook verification metadata, expanded Newsletter/AI/Audience/Editorial Filament resources, richer newsletter metrics, and additional operational validation tests.
+- Phase 9 newsletter editorial platform foundation with additive newsletter settings, shared audience topics, CSV import dry-run/commit, editorial content sources, digest draft runs, tokenized tracking, AI provider configuration, controlled SES test email support, SNS webhook ingestion skeleton, Filament resources, and newsletter documentation.
 - Phase 8 proprietary comments skeleton with additive comment threads/settings schema, comment settings resolver, normalized `source_url_hash`, HMAC-only Bridge write APIs, public approved-read APIs, Filament moderation resources, moderation center widgets, and SDK comments config handling.
 - Phase 7 SSO/Identity skeleton with disabled configurable auth providers, additive auth schema, one-time authorization code service, path-aware bridge callback resolver, `/auth/*` skeleton routes, PPID service, and Filament identity resources.
 - Phase 6 Star Atlas Core Bridge WordPress plugin skeleton with namespaced bootstrap, setup token admin flow, config storage, path-aware SDK/Service Worker/manifest/PWA/auth/push-click route skeletons, HMAC Core client, and private updater client integration.
@@ -23,6 +25,11 @@ Tutte le modifiche sostanziali al progetto vanno registrate qui.
 - Generator tests for clean Service Worker output and stable ClubAlfa IT/EN manifest fields.
 
 ### Changed
+- CSV imports now require an explicit dry-run before commit, respect effective `allow_import` settings, record commit metadata, detect existing subscribers separately from duplicate CSV rows, and can map allowed audience topic slugs without sending email.
+- Manual content-source fetches now preview without persistence by default; persistence is a separate gated action, while digest draft generation uses bounded persistence only for explicitly attached sources.
+- Newsletter unsubscribe now requires a valid unsubscribe token, and click tracking redirects only to the URL bound to the stored token metadata.
+- Digest recipe generation now performs a bounded just-in-time refresh of explicitly attached active RSS/WordPress content sources before creating the editorial-review campaign draft, while still avoiding continuous polling and auto-send.
+- Newsletter and push can now share canonical `audience_topics` while existing `push_topics` and `push_subscription_topics` remain available for compatibility mapping.
 - Sites, legacy push apps, and push subscriptions now include nullable `push_group_id` while retaining legacy string fields for compatibility/backfill.
 - Legacy import now links imported app mappings and subscriptions to canonical Push Groups.
 - VAPID key sets are read-only in Filament and public keys are masked in table views.
@@ -31,6 +38,8 @@ Tutte le modifiche sostanziali al progetto vanno registrate qui.
 - Push delivery logs now disable Eloquent timestamps for tables that use explicit attempted/delivered timestamps.
 
 ### Security
+- Phase 9B keeps test email behind the global `CORE_NEWSLETTER_SEND_ENABLED` kill switch, hides stored AWS/AI secrets in Filament forms, records consent IP/user-agent hashes, verifies SNS messages before processing, and blocks disabled import/content/AI/digest operations through a shared gate.
+- Phase 9 keeps newsletter send/import/AI/digest/polling disabled by default, encrypts email/provider/sender secrets, stores raw tracking tokens only as hashes, blocks CSV imports from sending mail, and verifies SNS signatures before SES event processing.
 - Phase 8 comment writes are restricted to Bridge HMAC endpoints, default comment settings are disabled when no explicit configuration exists, and comment privacy fields store IP, user-agent, and author email hashes instead of raw values.
 - Phase 7 auth providers are seeded as `disabled` and non-public, provider secrets are write-only in Filament, authorization codes are stored as hashes only, and `/auth/exchange-code` requires bridge HMAC.
 - Star Atlas Core Bridge stores the bridge secret for HMAC use but only shows the fingerprint in admin; update downloads use Core-issued temporary URLs instead of exposing secrets in query strings.

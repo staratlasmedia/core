@@ -161,6 +161,14 @@ return [
         'timeout' => (int) env('WEB_PUSH_TIMEOUT', 30),
     ],
 
+    'newsletter' => [
+        'send_enabled' => (bool) env('CORE_NEWSLETTER_SEND_ENABLED', false),
+        'sns_topic_arn' => env('CORE_NEWSLETTER_SNS_TOPIC_ARN'),
+        'sns_auto_confirm' => (bool) env('CORE_NEWSLETTER_SNS_AUTO_CONFIRM', false),
+        'test_fetch_limit' => (int) env('CORE_NEWSLETTER_TEST_FETCH_LIMIT', 10),
+        'tracking_token_ttl_minutes' => (int) env('CORE_NEWSLETTER_TRACKING_TOKEN_TTL_MINUTES', 10080),
+    ],
+
     'legacy_push' => [
         'connection' => env('LEGACY_PUSH_DB_CONNECTION_NAME', 'legacy_push'),
         'allowed_platforms' => [

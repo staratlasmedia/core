@@ -282,6 +282,14 @@ invalid
 unsubscribed
 ```
 
+## Audience Topics Compatibility
+
+Phase 9 introduces `audience_topics` as the canonical topic catalog shared by newsletter and push. Existing `push_topics` and `push_subscription_topics` remain intact for compatibility. Phase 9B adds operational Filament surfaces for audience topic channel settings and preference forms, without hardcoding final brands or categories.
+
+Future push preference work should write to `push_subscription_topic_preferences` with `audience_topic_id`. Existing push topics can be linked through `audience_topic_mappings` with `source_type=push_topic`.
+
+Do not hardcode final brand, category, or taxonomy lists during Phase 9.
+
 ## Legacy Data Source
 
 Legacy data is local.

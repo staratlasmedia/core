@@ -136,6 +136,26 @@ The Bridge contract for comments is local-first:
 - WordPress does not store comments as native WordPress comments.
 - Browser code never receives Core bridge secrets or long-lived write tokens.
 
+Phase 9 adds a newsletter config block to the Core config. It is disabled unless `newsletter_settings` explicitly enables the effective bridge installation, push group, site, or global scope.
+
+```js
+window.StarAtlasCoreConfig = {
+  newsletter: {
+    enabled: false,
+    default_list_id: null,
+    double_opt_in: true,
+    require_consent: true,
+    subscribe_endpoint: "/api/v1/newsletter/subscribe",
+    preferences_endpoint: "/api/v1/newsletter/preferences",
+    preference_form: null
+  }
+}
+```
+
+The future WordPress form must pass `site_code`, `push_group`, `language`, `section`, `source_url`, consent version, optional WordPress terms, list code, and selected `audience_topics`. WordPress must not store independent newsletter lists. Core filters submitted topic IDs against active visible newsletter topics.
+
+Public unsubscribe must use Core-issued unsubscribe tokens. The public endpoint does not accept subscriber UUID alone.
+
 ### 2. Service Worker Local Serving
 
 Maintain and serve Service Worker paths locally from the same WordPress origin.

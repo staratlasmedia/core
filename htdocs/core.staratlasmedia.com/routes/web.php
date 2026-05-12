@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthExchangeController;
 use App\Http\Controllers\Auth\AuthStartController;
 use App\Http\Controllers\Auth\SkeletonProviderController;
+use App\Http\Controllers\Newsletter\NewsletterTrackingController;
 use App\Http\Middleware\VerifyBridgeHmac;
 use Illuminate\Support\Facades\Route;
 
@@ -35,3 +36,8 @@ Route::prefix('auth')->middleware('throttle:60,1')->group(function (): void {
     Route::get('/oauth/{provider}/redirect', [SkeletonProviderController::class, 'oauthRedirect']);
     Route::get('/oauth/{provider}/callback', [SkeletonProviderController::class, 'oauthCallback']);
 });
+
+Route::get('/newsletter/o/{token}.gif', [NewsletterTrackingController::class, 'open'])
+    ->middleware('throttle:240,1');
+Route::get('/newsletter/c/{token}', [NewsletterTrackingController::class, 'click'])
+    ->middleware('throttle:240,1');
