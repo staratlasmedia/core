@@ -55,6 +55,36 @@ class User extends Authenticatable
         return $this->hasMany(SocialIdentity::class);
     }
 
+    public function webAuthnCredentials(): HasMany
+    {
+        return $this->hasMany(WebAuthnCredential::class);
+    }
+
+    public function webAuthnChallenges(): HasMany
+    {
+        return $this->hasMany(WebAuthnChallenge::class);
+    }
+
+    public function magicLinkTokens(): HasMany
+    {
+        return $this->hasMany(MagicLinkToken::class);
+    }
+
+    public function authSessions(): HasMany
+    {
+        return $this->hasMany(AuthSession::class);
+    }
+
+    public function authAuthorizationCodes(): HasMany
+    {
+        return $this->hasMany(AuthAuthorizationCode::class);
+    }
+
+    public function loginEvents(): HasMany
+    {
+        return $this->hasMany(LoginEvent::class);
+    }
+
     public function publisherProvidedIds(): HasMany
     {
         return $this->hasMany(PublisherProvidedId::class);

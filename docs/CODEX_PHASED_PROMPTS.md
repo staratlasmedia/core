@@ -622,9 +622,12 @@ Implementare fondazione SSO senza provider Google/Apple completi.
 CORE:
 
 - /auth/start
-- one-time authorization code model/service
-- /auth/code/exchange
-- /auth/bridge silent check placeholder
+- /auth/popup
+- one-time authorization code service
+- /auth/exchange-code
+- /auth/silent-check placeholder
+- passkey/oauth/magic-link/password endpoint skeletons
+- disabled configurable auth providers
 - login events
 
 SDK:
@@ -647,12 +650,18 @@ REGOLE:
 - code hashes, not raw persisted codes.
 - short expiry.
 - consumed_at tracking.
+- Provider seedati `status=disabled` e `is_public=false`.
+- Non installare `web-auth/webauthn-lib` in Phase 7.
+- Mantenere compatibilità `redirect_url` mentre si aggiunge `redirect_uri`.
 
 DONE WHEN:
 
 - Auth routes exist.
 - One-time code flow skeleton exists.
 - Tests for code creation/expiry/consume if feasible.
+- Provider disabled routes return safe not-available responses.
+- Filament provider secrets are write-only.
+- Passkey/WebAuthn docs state `rp_id=core.staratlasmedia.com` and `origin=https://core.staratlasmedia.com`.
 ```
 
 ## Phase 8 — Comments Skeleton
@@ -691,6 +700,14 @@ DONE WHEN:
 - Comment models/API/resource scaffolded.
 - SDK widget placeholder works.
 ```
+
+Phase 8 implementation notes:
+
+- Use additive migrations only; do not drop/rename existing comments foundation fields.
+- `source_url` is canonical; `source_url_hash` is derived from normalized `source_url`.
+- Keep `external_post_url_hash` as legacy compatibility only.
+- Resolve settings via `CommentSettingsResolver` with fallback disabled.
+- Write API is `POST /api/bridge/comments` behind Bridge HMAC only.
 
 ## Phase 9 — Newsletter Skeleton
 

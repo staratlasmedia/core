@@ -19,11 +19,17 @@ https://core.staratlasmedia.com/api/bridge
 ```text
 GET /health
 GET /sites/{siteCode}/bootstrap
+GET /comments/threads/resolve
+GET /comments
 ```
 
 `/health` returns a minimal service status.
 
 `/sites/{siteCode}/bootstrap` returns non-secret site bootstrap metadata such as origin, language, push group, manifest ID, and Service Worker path.
+
+`/comments/threads/resolve` resolves the Phase 8 comment thread for `site_code + source_url` using normalized `source_url` and returns disabled state when effective settings disable comments.
+
+`/comments` returns approved comments only for the resolved thread. Public reads are exact-origin CORS and rate-limited.
 
 ## WordPress Bridge Endpoints
 
@@ -35,6 +41,10 @@ POST /api/bridge/events
 GET  /api/bridge/plugin/update-check
 GET  /api/bridge/plugin/info
 GET  /api/bridge/plugin/download/{token}
+POST /api/bridge/comments
+POST /api/bridge/comments/{comment}/reactions
+DELETE /api/bridge/comments/{comment}/reactions/{reactionType}
+POST /api/bridge/comments/{comment}/reports
 ```
 
 `/setup/claim` consumes a one-time setup token generated in Filament and returns bridge installation credentials only once.
@@ -49,6 +59,8 @@ X-Core-Signature
 ```
 
 Plugin download URLs use temporary non-guessable tokens and are not public package listings.
+
+Phase 8 comment writes are server-to-server Bridge calls only. `POST /api/bridge/comments` requires HMAC, validates the bridge installation and effective comment settings, stores only hashes for IP/user agent/email, and creates a moderation event for each created comment.
 
 ## PWA Asset Generation
 

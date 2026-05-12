@@ -17,6 +17,8 @@ class AuthSession extends CoreModel
         return [
             'expires_at' => 'datetime',
             'revoked_at' => 'datetime',
+            'last_seen_at' => 'datetime',
+            'metadata_json' => 'array',
         ];
     }
 

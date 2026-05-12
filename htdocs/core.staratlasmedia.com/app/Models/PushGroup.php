@@ -46,4 +46,19 @@ class PushGroup extends CoreModel
     {
         return $this->hasMany(BridgeConfigVersion::class);
     }
+
+    public function authProviderSiteSettings(): HasMany
+    {
+        return $this->hasMany(AuthProviderSiteSetting::class);
+    }
+
+    public function commentThreads(): HasMany
+    {
+        return $this->hasMany(CommentThread::class);
+    }
+
+    public function commentSettings(): HasMany
+    {
+        return $this->hasMany(CommentSetting::class);
+    }
 }

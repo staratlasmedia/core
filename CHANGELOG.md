@@ -5,6 +5,8 @@ Tutte le modifiche sostanziali al progetto vanno registrate qui.
 ## Unreleased
 
 ### Added
+- Phase 8 proprietary comments skeleton with additive comment threads/settings schema, comment settings resolver, normalized `source_url_hash`, HMAC-only Bridge write APIs, public approved-read APIs, Filament moderation resources, moderation center widgets, and SDK comments config handling.
+- Phase 7 SSO/Identity skeleton with disabled configurable auth providers, additive auth schema, one-time authorization code service, path-aware bridge callback resolver, `/auth/*` skeleton routes, PPID service, and Filament identity resources.
 - Phase 6 Star Atlas Core Bridge WordPress plugin skeleton with namespaced bootstrap, setup token admin flow, config storage, path-aware SDK/Service Worker/manifest/PWA/auth/push-click route skeletons, HMAC Core client, and private updater client integration.
 - Phase 4B WordPress Bridge Core support with setup token, installation, config version, plugin package, plugin release, and plugin update download models/tables.
 - Filament WordPress Bridge resources for setup tokens, bridge installations, config versions, plugin packages, plugin releases, and read-only download audit.
@@ -29,6 +31,8 @@ Tutte le modifiche sostanziali al progetto vanno registrate qui.
 - Push delivery logs now disable Eloquent timestamps for tables that use explicit attempted/delivered timestamps.
 
 ### Security
+- Phase 8 comment writes are restricted to Bridge HMAC endpoints, default comment settings are disabled when no explicit configuration exists, and comment privacy fields store IP, user-agent, and author email hashes instead of raw values.
+- Phase 7 auth providers are seeded as `disabled` and non-public, provider secrets are write-only in Filament, authorization codes are stored as hashes only, and `/auth/exchange-code` requires bridge HMAC.
 - Star Atlas Core Bridge stores the bridge secret for HMAC use but only shows the fingerprint in admin; update downloads use Core-issued temporary URLs instead of exposing secrets in query strings.
 - Bridge setup tokens are stored only as SHA-256 hashes, bridge secrets are encrypted at rest, and Filament displays fingerprints instead of raw secrets.
 - Bridge config, heartbeat, event, and plugin update endpoints require the HMAC header skeleton; plugin downloads use temporary hashed tokens.

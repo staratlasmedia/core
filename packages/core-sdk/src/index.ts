@@ -22,6 +22,7 @@ export {
 } from './push';
 export type {
   AuthFlowOptions,
+  CommentsConfig,
   CoreWidgetStatus,
   PushSubscriptionContext,
   PushSubscriptionPayload,

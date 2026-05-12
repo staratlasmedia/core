@@ -100,16 +100,34 @@ Reason:
 
 The WordPress plugin creates local session state after server-to-server code exchange.
 
+## Comments Identity Contract
+
+Phase 8 comments use the Phase 7 SSO skeleton through the WordPress Bridge. The preferred write path is: Core SSO login, WordPress first-party local session, SDK post to local Bridge comments endpoint, Bridge HMAC write to Core, and Core storage without exposing global `users.id` to the browser.
+
+Guest comments remain disabled by default and are not a production flow in Phase 8.
+
 ## Endpoints to Plan
 
 Core:
 
 ```text
 GET  /auth/start
-GET  /auth/callback/provider/{provider}
-POST /auth/code/exchange
+GET  /auth/popup
+GET  /auth/silent-check
+POST /auth/exchange-code
 POST /auth/logout
-GET  /auth/bridge
+POST /auth/passkey/register/options
+POST /auth/passkey/register/verify
+POST /auth/passkey/login/options
+POST /auth/passkey/login/verify
+POST /auth/magic-link/request
+POST /auth/magic-link/verify
+POST /auth/password/login
+POST /auth/password/register
+POST /auth/password/forgot
+POST /auth/password/reset
+GET  /auth/oauth/{provider}/redirect
+GET  /auth/oauth/{provider}/callback
 ```
 
 WordPress plugin:
@@ -122,19 +140,72 @@ POST /core-auth/logout
 
 ## Token Strategy
 
-Bootstrap phase:
+Phase 7 skeleton:
 
-- keep simple;
-- implement short-lived one-time authorization codes;
-- store code hashes, not raw codes;
-- expire quickly;
-- mark consumed after successful exchange.
+- provider records exist but are seeded `status=disabled` and `is_public=false`;
+- disabled provider routes return a safe not-available response instead of starting a real flow;
+- one-time authorization codes are short-lived;
+- code values are stored only as SHA-256 hashes;
+- `redirect_uri` is written while `redirect_url` remains for compatibility;
+- server-to-server code exchange requires Star Atlas Core Bridge HMAC.
 
 Later:
 
 - add refresh/session tokens if needed;
 - add Google/Apple providers;
 - add login event analytics.
+
+## Configurable Auth Providers
+
+Core stores auth provider configuration in `auth_providers` and optional scoped overrides in `auth_provider_site_settings`.
+
+Initial providers:
+
+- `passkey`
+- `google`
+- `apple`
+- `magic_link`
+- `password`
+- `facebook`
+
+All are configurable from Filament but disabled and non-public until production implementations and secrets are intentionally enabled.
+
+Secrets and private provider configuration are stored in encrypted fields and are write-only in Filament. Existing values must never be displayed in full after save.
+
+## Passkey / WebAuthn
+
+Phase 7 does not install `web-auth/webauthn-lib` and does not implement full WebAuthn verification. It creates only schema, configuration, services, endpoint skeletons, and documentation for a later production pass.
+
+Current relying party configuration:
+
+```text
+rp_id  = core.staratlasmedia.com
+origin = https://core.staratlasmedia.com
+```
+
+No special DNS record is required for this WebAuthn model beyond normal DNS and valid HTTPS for `core.staratlasmedia.com`. Cloudflare proxy is compatible when the public host, HTTPS, and origin observed by the browser stay coherent.
+
+Operational checks:
+
+- `/auth/*` must not be protected by Cloudflare Zero Trust Access;
+- Zero Trust Access remains scoped to `/core-admin*`;
+- avoid aggressive WAF/challenge behavior on `/auth/passkey/*`, `/auth/oauth/*`, and `/auth/exchange-code`, because challenges can break WebAuthn ceremonies, OAuth callbacks, popup/redirect flows, and server-to-server POSTs.
+
+## Bridge Callback Resolution
+
+Core derives the WordPress callback from the bridge installation instead of hardcoded section paths.
+
+Priority:
+
+1. `wp_base_path`, if a future schema adds it;
+2. `detected_base_path`, currently stored by Phase 6;
+3. `/` fallback.
+
+The resulting callback is:
+
+```text
+{bridge_installation.origin}{base_path}/core-auth/callback
+```
 
 ## PPID Strategy
 

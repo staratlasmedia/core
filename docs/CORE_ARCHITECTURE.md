@@ -220,8 +220,13 @@ social_identities
 - user_id
 - provider
 - provider_id
+- provider_user_id nullable
 - email nullable
+- name nullable
 - avatar_url nullable
+- access_token_encrypted nullable
+- refresh_token_encrypted nullable
+- token_expires_at nullable
 - metadata JSON nullable
 - timestamps
 
@@ -244,10 +249,13 @@ auth_authorization_codes
 - code_hash
 - user_id
 - site_id
+- bridge_installation_id nullable
 - origin
 - redirect_url
+- redirect_uri nullable
 - state_hash
 - nonce_hash
+- status
 - expires_at
 - consumed_at nullable
 - metadata JSON nullable
@@ -258,25 +266,96 @@ auth_sessions
 - user_id
 - site_id nullable
 - origin nullable
+- session_uuid nullable
 - session_hash
+- status
 - user_agent_hash nullable
 - ip_hash nullable
+- last_seen_at nullable
 - expires_at
 - revoked_at nullable
+- metadata_json nullable
 - timestamps
 
 login_events
 - id
 - user_id nullable
 - site_id nullable
+- bridge_installation_id nullable
 - origin nullable
 - event_type
 - provider nullable
+- result nullable
 - success boolean
 - ip_hash nullable
 - user_agent_hash nullable
 - metadata JSON nullable
+- metadata_json nullable
 - created_at
+```
+
+### Phase 7 Auth Provider Skeleton
+
+```text
+auth_providers
+- code unique
+- name
+- type passkey/oauth/magic_link/password
+- status disabled/enabled/hidden
+- sort_order
+- is_default
+- is_public
+- config_json
+- encrypted_config_json
+- metadata_json
+
+auth_provider_site_settings
+- auth_provider_id
+- site_id nullable
+- push_group_id nullable
+- bridge_installation_id nullable
+- status inherited/enabled/disabled/hidden
+- config_json
+- encrypted_config_json
+```
+
+Seeded providers are `passkey`, `google`, `apple`, `magic_link`, `password`, and `facebook`, all disabled and non-public by default.
+
+### Phase 7 WebAuthn / Magic Link Skeleton
+
+```text
+webauthn_credentials
+- user_id
+- credential_id_hash
+- credential_id_encrypted
+- public_key
+- sign_count
+- transports_json
+- attestation_type
+- aaguid
+- name
+- last_used_at
+
+webauthn_challenges
+- user_id nullable
+- challenge_hash
+- type registration/authentication
+- rp_id
+- origin
+- expires_at
+- consumed_at
+
+magic_link_tokens
+- email
+- token_hash
+- user_id nullable
+- site_id nullable
+- bridge_installation_id nullable
+- status
+- expires_at
+- consumed_at
+- ip_hash
+- user_agent_hash
 ```
 
 ### Comments Foundation
@@ -325,6 +404,38 @@ comment_moderation_events
 - metadata JSON nullable
 - timestamps
 ```
+
+### Comments Phase 8 Skeleton
+
+Phase 8 extends the existing comments foundation additively.
+
+```text
+comment_threads
+- id / uuid
+- site_id
+- push_group_id nullable
+- bridge_installation_id nullable
+- source_url
+- source_url_hash
+- source_title nullable
+- language / section nullable
+- status string: open, closed, archived, disabled
+- cached counters
+- wp_terms_json / metadata_json nullable
+
+comment_settings
+- scope: global, site, push_group, bridge_installation
+- scope_key deterministic: global, site:{id}, push_group:{id}, bridge_installation:{id}
+- comments_enabled default false
+- require_login default true
+- allow_guest default false
+- require_moderation default true
+- max_depth / max_length / min_length
+```
+
+`source_url` is the canonical thread reference. `source_url_hash` is always generated from the normalized URL. Existing `external_post_url_hash` remains only as legacy compatibility.
+
+Comment settings are resolved by `CommentSettingsResolver` in this order: bridge installation, push group, site, global, then safe fallback disabled.
 
 ### Web Push Foundation
 

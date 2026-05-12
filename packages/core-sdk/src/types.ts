@@ -5,13 +5,38 @@ export type CoreWidgetStatus =
   | 'configured'
   | 'missing-config'
   | 'missing-vapid-public-key'
+  | 'disabled'
+  | 'login-required'
+  | 'empty'
   | 'unsupported'
   | 'subscribed'
   | 'sent'
   | 'error';
 
+export interface CommentsConfig {
+  enabled: boolean;
+  commentsEnabled?: boolean;
+  requireLogin: boolean;
+  allowGuest: boolean;
+  requireModeration: boolean;
+  maxDepth: number;
+  maxLength: number;
+  minLength: number;
+  threadEndpoint?: string;
+  commentsEndpoint?: string;
+  postEndpoint?: string;
+  reactionEndpoint?: string;
+  reportEndpoint?: string;
+  statusEndpoint?: string;
+  loginRequiredMessage?: string;
+  disabledMessage?: string;
+  debugPlaceholder?: boolean;
+}
+
 export interface StarAtlasCoreConfig {
   siteCode: string;
+  pushGroupCode?: string;
+  bridgeInstallationId?: string;
   origin: string;
   language: string;
   section?: string;
@@ -22,6 +47,7 @@ export interface StarAtlasCoreConfig {
   serviceWorkerScope?: string;
   vapidPublicKey?: string;
   wpTerms?: unknown[];
+  comments?: CommentsConfig;
 }
 
 export interface PushSubscriptionContext {

@@ -2,6 +2,10 @@
 
 use App\Http\Controllers\Bridge\BridgePluginController;
 use App\Http\Controllers\Bridge\BridgeSetupController;
+use App\Http\Controllers\Comments\BridgeCommentController;
+use App\Http\Controllers\Comments\InternalCommentModerationController;
+use App\Http\Controllers\Comments\PublicCommentController;
+use App\Http\Controllers\Comments\PublicCommentThreadController;
 use App\Http\Middleware\VerifyBridgeHmac;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +32,11 @@ Route::middleware('throttle:60,1')->prefix('v1')->group(function (): void {
             'service_worker_scope' => $site['service_worker_scope'],
         ]);
     });
+
+    Route::get('/comments/threads/resolve', [PublicCommentThreadController::class, 'resolve'])
+        ->middleware('throttle:120,1');
+    Route::get('/comments', [PublicCommentController::class, 'index'])
+        ->middleware('throttle:120,1');
 });
 
 Route::prefix('bridge')->group(function (): void {
@@ -40,9 +49,18 @@ Route::prefix('bridge')->group(function (): void {
         Route::post('/events', [BridgeSetupController::class, 'events']);
         Route::get('/plugin/update-check', [BridgePluginController::class, 'updateCheck']);
         Route::get('/plugin/info', [BridgePluginController::class, 'info']);
+        Route::post('/comments', [BridgeCommentController::class, 'store']);
+        Route::post('/comments/{comment}/reactions', [BridgeCommentController::class, 'react']);
+        Route::delete('/comments/{comment}/reactions/{reactionType}', [BridgeCommentController::class, 'destroyReaction']);
+        Route::post('/comments/{comment}/reports', [BridgeCommentController::class, 'report']);
     });
 
     Route::get('/plugin/download/{token}', [BridgePluginController::class, 'download'])
         ->name('bridge.plugin.download')
         ->middleware('throttle:60,1');
+});
+
+Route::prefix('internal')->middleware(['auth', 'throttle:30,1'])->group(function (): void {
+    Route::patch('/comments/{comment}/moderate', [InternalCommentModerationController::class, 'moderate']);
+    Route::patch('/comments/threads/{thread}', [InternalCommentModerationController::class, 'updateThread']);
 });

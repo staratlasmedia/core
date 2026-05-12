@@ -18,6 +18,21 @@ return [
         'plugin_download_ttl_minutes' => (int) env('CORE_BRIDGE_PLUGIN_DOWNLOAD_TTL_MINUTES', 30),
     ],
 
+    'auth' => [
+        'authorization_code_ttl_seconds' => (int) env('CORE_AUTH_CODE_TTL_SECONDS', 120),
+        'ppid_secret' => env('CORE_PPID_SECRET', env('APP_KEY', '')),
+        'ppid_version' => (int) env('CORE_PPID_VERSION', 1),
+        'webauthn' => [
+            'rp_id' => env('CORE_WEBAUTHN_RP_ID', 'core.staratlasmedia.com'),
+            'origin' => env('CORE_WEBAUTHN_ORIGIN', 'https://core.staratlasmedia.com'),
+            'display_name' => env('CORE_WEBAUTHN_DISPLAY_NAME', 'Star Atlas Media Core'),
+            'user_verification' => env('CORE_WEBAUTHN_USER_VERIFICATION', 'preferred'),
+            'resident_key' => env('CORE_WEBAUTHN_RESIDENT_KEY', 'preferred'),
+            'attestation' => env('CORE_WEBAUTHN_ATTESTATION', 'none'),
+            'timeout_ms' => (int) env('CORE_WEBAUTHN_TIMEOUT_MS', 60000),
+        ],
+    ],
+
     'sites' => [
         'clubalfa_it' => [
             'origin' => 'https://www.clubalfa.it',

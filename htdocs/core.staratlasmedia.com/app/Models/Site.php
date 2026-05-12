@@ -64,6 +64,16 @@ class Site extends CoreModel
         return $this->hasMany(BridgeInstallation::class);
     }
 
+    public function authProviderSiteSettings(): HasMany
+    {
+        return $this->hasMany(AuthProviderSiteSetting::class);
+    }
+
+    public function magicLinkTokens(): HasMany
+    {
+        return $this->hasMany(MagicLinkToken::class);
+    }
+
     public function bridgeConfigVersions(): HasMany
     {
         return $this->hasMany(BridgeConfigVersion::class);
@@ -77,5 +87,15 @@ class Site extends CoreModel
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function commentThreads(): HasMany
+    {
+        return $this->hasMany(CommentThread::class);
+    }
+
+    public function commentSettings(): HasMany
+    {
+        return $this->hasMany(CommentSetting::class);
     }
 }

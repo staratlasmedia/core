@@ -18,11 +18,50 @@ export class CoreCommentsWidget extends LitElement {
   render() {
     const config = requireCoreConfig(this);
 
+    if (!config) {
+      return html`
+        <section class="core-widget" data-status=${this.status}>
+          <h2 class="title">Commenti</h2>
+          <p class="copy">Configurazione commenti mancante.</p>
+        </section>
+      `;
+    }
+
+    const comments = config.comments;
+
+    if (!comments?.enabled) {
+      this.status = 'disabled';
+
+      if (!comments?.debugPlaceholder) {
+        return html``;
+      }
+
+      return html`
+        <section class="core-widget" data-status=${this.status}>
+          <h2 class="title">Commenti</h2>
+          <p class="copy">${comments.disabledMessage ?? 'I commenti non sono disponibili per questa pagina.'}</p>
+          <span class="meta">${config.siteCode} · disabled</span>
+        </section>
+      `;
+    }
+
+    if (comments.requireLogin) {
+      this.status = 'login-required';
+
+      return html`
+        <section class="core-widget" data-status=${this.status}>
+          <h2 class="title">Commenti</h2>
+          <p class="copy">${comments.loginRequiredMessage ?? 'Accedi per commentare.'}</p>
+          <core-login-widget></core-login-widget>
+        </section>
+      `;
+    }
+
     return html`
       <section class="core-widget" data-status=${this.status}>
         <h2 class="title">Commenti</h2>
         <p class="copy">I commenti Core saranno caricati per questa pagina.</p>
-        <span class="meta">${config?.siteCode ?? 'Core'} · ${config?.sourceUrl ?? 'config'}</span>
+        <span class="meta">${config.siteCode} · ${config.sourceUrl}</span>
       </section>
     `;
   }

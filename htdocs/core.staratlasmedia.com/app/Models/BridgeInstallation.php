@@ -59,4 +59,39 @@ class BridgeInstallation extends CoreModel
     {
         return $this->hasMany(PluginUpdateDownload::class);
     }
+
+    public function authProviderSiteSettings(): HasMany
+    {
+        return $this->hasMany(AuthProviderSiteSetting::class);
+    }
+
+    public function authAuthorizationCodes(): HasMany
+    {
+        return $this->hasMany(AuthAuthorizationCode::class);
+    }
+
+    public function magicLinkTokens(): HasMany
+    {
+        return $this->hasMany(MagicLinkToken::class);
+    }
+
+    public function loginEvents(): HasMany
+    {
+        return $this->hasMany(LoginEvent::class);
+    }
+
+    public function commentThreads(): HasMany
+    {
+        return $this->hasMany(CommentThread::class);
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function commentSettings(): HasMany
+    {
+        return $this->hasMany(CommentSetting::class);
+    }
 }

@@ -6,9 +6,16 @@ use App\Models\BridgeInstallation;
 use App\Models\PushGroup;
 use App\Models\Site;
 use App\Models\SiteOrigin;
+use App\Services\Auth\BridgeCallbackUrlResolver;
+use App\Services\Comments\CommentSettingsResolver;
 
 class BridgeConfigBuilder
 {
+    public function __construct(
+        private readonly BridgeCallbackUrlResolver $callbackUrlResolver,
+        private readonly CommentSettingsResolver $commentSettings,
+    ) {}
+
     /**
      * @return array<string, mixed>
      */
@@ -24,6 +31,7 @@ class BridgeConfigBuilder
             pushGroupCode: $installation->push_group_code,
             language: $installation->language,
             section: $installation->section,
+            bridgeInstallation: $installation,
         );
     }
 
@@ -42,6 +50,7 @@ class BridgeConfigBuilder
             pushGroupCode: $token->intended_push_group_code,
             language: $token->intended_language,
             section: $token->intended_section,
+            bridgeInstallation: null,
         );
     }
 
@@ -58,6 +67,7 @@ class BridgeConfigBuilder
         ?string $pushGroupCode,
         ?string $language,
         ?string $section,
+        ?BridgeInstallation $bridgeInstallation,
     ): array {
         $basePath = $this->normalizeBasePath($basePath ?? $siteOrigin?->path_prefix ?? '/');
         $pushGroupCode ??= $pushGroup?->code ?? $site?->push_group;
@@ -95,6 +105,40 @@ class BridgeConfigBuilder
             'sdk_url' => (string) config('core.bridge.sdk_url', 'https://core.staratlasmedia.com/sdk/core-sdk.iife.js'),
         ];
 
+        $settings = $this->commentSettings->resolve(
+            siteId: $site?->id,
+            pushGroupId: $pushGroup?->id,
+            bridgeInstallationId: $bridgeInstallation?->id,
+            language: $language,
+            section: $section,
+        );
+
+        $config['comments'] = $settings->toArray() + [
+            'thread_endpoint' => $this->pathWithBase($basePath, '/core-comments/thread'),
+            'comments_endpoint' => $this->pathWithBase($basePath, '/core-comments/comments'),
+            'post_endpoint' => $this->pathWithBase($basePath, '/core-comments/post'),
+            'reaction_endpoint' => $this->pathWithBase($basePath, '/core-comments/reaction'),
+            'report_endpoint' => $this->pathWithBase($basePath, '/core-comments/report'),
+            'status_endpoint' => $this->pathWithBase($basePath, '/core-comments/status'),
+            'login_required_message' => 'Accedi per commentare.',
+            'disabled_message' => 'I commenti non sono disponibili per questa pagina.',
+        ];
+
+        if ($bridgeInstallation !== null) {
+            $coreBase = rtrim((string) config('core.bridge.api_base', config('app.url', 'https://core.staratlasmedia.com')), '/');
+
+            $config += [
+                'bridge_installation_id' => (string) $bridgeInstallation->uuid,
+                'login_mode' => 'popup',
+                'auth_start_url' => $coreBase.'/auth/start',
+                'auth_callback_url' => $this->callbackUrlResolver->callbackUrl($bridgeInstallation),
+                'silent_check_url' => $coreBase.'/auth/silent-check',
+                'local_auth_exchange_url' => $this->pathWithBase($basePath, '/core-auth/exchange'),
+                'local_auth_status_url' => $this->pathWithBase($basePath, '/core-auth/session'),
+                'local_auth_logout_url' => $this->pathWithBase($basePath, '/core-auth/logout'),
+            ];
+        }
+
         if ($basePath === '/automobili/') {
             $config['local_service_worker_paths'] = ['/automobili/smart_sw.js'];
         }
@@ -107,6 +151,17 @@ class BridgeConfigBuilder
         $path = '/'.trim($path, '/');
 
         return $path === '/' ? '/' : $path.'/';
+    }
+
+    private function pathWithBase(string $basePath, string $path): string
+    {
+        $path = '/'.ltrim($path, '/');
+
+        if ($basePath === '/') {
+            return $path;
+        }
+
+        return rtrim($basePath, '/').$path;
     }
 
     private function sectionFromBasePath(string $basePath): string

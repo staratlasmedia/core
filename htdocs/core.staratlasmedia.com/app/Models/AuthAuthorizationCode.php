@@ -18,6 +18,7 @@ class AuthAuthorizationCode extends CoreModel
             'expires_at' => 'datetime',
             'consumed_at' => 'datetime',
             'metadata' => 'array',
+            'metadata_json' => 'array',
         ];
     }
 
@@ -34,5 +35,15 @@ class AuthAuthorizationCode extends CoreModel
     public function siteOrigin(): BelongsTo
     {
         return $this->belongsTo(SiteOrigin::class);
+    }
+
+    public function bridgeInstallation(): BelongsTo
+    {
+        return $this->belongsTo(BridgeInstallation::class);
+    }
+
+    public function getEffectiveRedirectUriAttribute(): ?string
+    {
+        return $this->redirect_uri ?: $this->redirect_url;
     }
 }

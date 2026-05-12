@@ -108,6 +108,34 @@ Example:
 <core-push-widget></core-push-widget>
 ```
 
+Phase 8 adds an effective comments config block to the Core config. The safe fallback is disabled unless Core has an explicit `comment_settings` row for the installation, push group, site, or global scope.
+
+```js
+window.StarAtlasCoreConfig = {
+  comments: {
+    enabled: false,
+    requireLogin: true,
+    allowGuest: false,
+    requireModeration: true,
+    maxDepth: 3,
+    maxLength: 2000,
+    minLength: 2,
+    threadEndpoint: "/core-comments/thread",
+    commentsEndpoint: "/core-comments/comments",
+    postEndpoint: "/core-comments/post",
+    statusEndpoint: "/core-comments/status"
+  }
+}
+```
+
+The Bridge contract for comments is local-first:
+
+- SDK reads thread/comment status from local `/core-comments/*` endpoints or Core read endpoints.
+- SDK posts comments to the local Bridge endpoint.
+- Bridge forwards writes to `POST /api/bridge/comments` with HMAC.
+- WordPress does not store comments as native WordPress comments.
+- Browser code never receives Core bridge secrets or long-lived write tokens.
+
 ### 2. Service Worker Local Serving
 
 Maintain and serve Service Worker paths locally from the same WordPress origin.
@@ -197,6 +225,14 @@ Responsibilities:
 - create first-party WordPress session;
 - expose local session state to SDK;
 - support logout.
+
+Core Phase 7 exposes the server-to-server exchange endpoint at:
+
+```text
+POST /auth/exchange-code
+```
+
+The request must use the existing bridge HMAC headers. Core derives the callback URL from the bridge installation base path. The priority is future `wp_base_path`, then current `detected_base_path`, then `/`; section paths such as `/automobili/` or `/en/` are not hardcoded in the auth layer.
 
 ### 6. Push Subscription Context
 

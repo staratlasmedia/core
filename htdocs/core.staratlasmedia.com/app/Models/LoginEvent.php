@@ -18,6 +18,7 @@ class LoginEvent extends CoreModel
         return [
             'success' => 'boolean',
             'metadata' => 'array',
+            'metadata_json' => 'array',
         ];
     }
 
@@ -34,5 +35,10 @@ class LoginEvent extends CoreModel
     public function siteOrigin(): BelongsTo
     {
         return $this->belongsTo(SiteOrigin::class);
+    }
+
+    public function bridgeInstallation(): BelongsTo
+    {
+        return $this->belongsTo(BridgeInstallation::class);
     }
 }
